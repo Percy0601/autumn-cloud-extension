@@ -5,12 +5,13 @@ import com.autumn.cloud.extension.core.model.InstanceSnapshot;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.MulticastSocket;
 import java.net.NetworkInterface;
-import java.nio.charset.StandardCharsets;
+import java.net.StandardSocketOptions;
+import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
+import java.net.StandardProtocolFamily;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +49,9 @@ public final class MulticastDiscovery implements AutoCloseable {
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final AtomicBoolean published = new AtomicBoolean(false);
 
-    private volatile MulticastSocket socket;
+    private volatile DatagramChannel channel;
+    /** 独立发送通道：不 bind 组播地址，否则源地址为组播地址会被丢弃 */
+    private volatile DatagramChannel sendChannel;
     private volatile Thread receiverThread;
     private volatile ScheduledExecutorService senderScheduler;
     private volatile ScheduledExecutorService sweeper;
@@ -63,13 +66,19 @@ public final class MulticastDiscovery implements AutoCloseable {
         if (running.get()) {
             return;
         }
-        MulticastSocket socket = new MulticastSocket(config.port());
-        socket.setTimeToLive(config.ttl());
         NetworkInterface nif = resolveNetworkInterface(config.networkInterface());
-        // 从指定网卡收发，避免多网卡环境走错路径（如 VPN 虚拟网卡）
-        socket.setNetworkInterface(nif);
-        socket.joinGroup(new InetSocketAddress(InetAddress.getByName(config.group()), config.port()), nif);
-        this.socket = socket;
+        InetAddress group = InetAddress.getByName(config.group());
+        // IPv4 channel + bind 到组播地址本身（非通配地址）：同主机多进程共享 (group, port) 时，
+        // 组播包按 BSD 语义投递给全部绑定 socket（bind 通配地址在 macOS 上仅最后 bind 的进程能收到）
+        DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET)
+                .setOption(StandardSocketOptions.SO_REUSEADDR, true)
+                .bind(new InetSocketAddress(group, config.port()));
+        channel.join(group, nif);
+        this.channel = channel;
+        DatagramChannel sendChannel = DatagramChannel.open(StandardProtocolFamily.INET);
+        sendChannel.setOption(StandardSocketOptions.IP_MULTICAST_TTL, config.ttl());
+        sendChannel.setOption(StandardSocketOptions.IP_MULTICAST_IF, nif);
+        this.sendChannel = sendChannel;
         running.set(true);
 
         Thread thread = new Thread(this::receiveLoop, "autumn-multicast-receiver");
@@ -132,9 +141,15 @@ public final class MulticastDiscovery implements AutoCloseable {
         if (sweeper != null) {
             sweeper.shutdownNow();
         }
-        if (socket != null) {
+        if (channel != null) {
             try {
-                socket.close(); // 同时解除 receiveLoop 阻塞
+                channel.close(); // 同时解除 receiveLoop 阻塞
+            } catch (Exception ignored) {
+            }
+        }
+        if (sendChannel != null) {
+            try {
+                sendChannel.close();
             } catch (Exception ignored) {
             }
         }
@@ -159,13 +174,14 @@ public final class MulticastDiscovery implements AutoCloseable {
     }
 
     private void receiveLoop() {
-        byte[] buffer = new byte[MAX_PACKET_BYTES];
+        ByteBuffer buffer = ByteBuffer.allocateDirect(MAX_PACKET_BYTES);
         while (running.get()) {
             try {
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                socket.receive(packet);
-                String json = new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8);
-                onFrame(json, System.currentTimeMillis());
+                buffer.clear();
+                channel.receive(buffer);
+                buffer.flip();
+                onFrame(java.nio.charset.StandardCharsets.UTF_8.decode(buffer).toString(),
+                        System.currentTimeMillis());
             } catch (Exception e) {
                 if (running.get()) {
                     LOGGER.fine("multicast receive failed: " + e.getMessage());
@@ -213,12 +229,13 @@ public final class MulticastDiscovery implements AutoCloseable {
     }
 
     private void send(String type, InstanceRegistration registration) throws IOException {
-        MulticastSocket socket = this.socket;
-        if (registration == null || socket == null) {
+        DatagramChannel sendChannel = this.sendChannel;
+        if (registration == null || sendChannel == null) {
             return;
         }
         byte[] data = MAPPER.writeValueAsBytes(new Frame(type, registration));
-        socket.send(new DatagramPacket(data, data.length, InetAddress.getByName(config.group()), config.port()));
+        sendChannel.send(ByteBuffer.wrap(data),
+                new InetSocketAddress(InetAddress.getByName(config.group()), config.port()));
     }
 
     private static NetworkInterface resolveNetworkInterface(String preferred) throws IOException {

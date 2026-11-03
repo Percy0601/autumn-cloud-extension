@@ -15,8 +15,8 @@ public record MulticastConfig(String group, int port, int ttl,
                               String networkInterface) {
 
     public MulticastConfig {
-        group = (group == null || group.isBlank()) ? "239.255.42.99" : group.trim();
-        port = port <= 0 ? 5555 : port;
+        group = (group == null || group.isBlank()) ? "239.192.71.88" : group.trim();
+        port = port <= 0 ? 47891 : port;
         ttl = ttl <= 0 ? 1 : ttl;
         heartbeatIntervalMs = heartbeatIntervalMs <= 0 ? 3000 : heartbeatIntervalMs;
         evictAfterMs = evictAfterMs <= 0 ? Math.max(heartbeatIntervalMs * 3, 10_000) : evictAfterMs;

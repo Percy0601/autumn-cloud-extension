@@ -9,8 +9,8 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 @ConfigurationProperties(prefix = "autumn.discovery.multicast")
 public record MulticastDiscoveryProperties(
         /** 组播地址（IPv4 组播段 224.0.0.0 ~ 239.255.255.255） */
-        @DefaultValue("239.255.42.99") String group,
-        @DefaultValue("5555") int port,
+        @DefaultValue("239.192.71.88") String group,
+        @DefaultValue("47891") int port,
         /** TTL，1 = 仅本网段 */
         @DefaultValue("1") int ttl,
         /** 心跳广播间隔（毫秒） */
