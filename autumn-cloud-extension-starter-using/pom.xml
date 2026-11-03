@@ -41,10 +41,18 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
-                <configuration>
-                    <!-- 默认主类为网关；Provider 通过 -Dspring-boot.run.main-class 切换 -->
-                    <mainClass>com.autumn.cloud.example.gateway.GatewayApplication</mainClass>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <!-- 打包主类为网关；运行期用 -Dspring-boot.run.main-class 自由切换 -->
+                            <mainClass>com.autumn.cloud.example.gateway.GatewayApplication</mainClass>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

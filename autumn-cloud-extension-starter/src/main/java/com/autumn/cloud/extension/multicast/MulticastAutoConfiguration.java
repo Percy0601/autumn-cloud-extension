@@ -38,6 +38,13 @@ public class MulticastAutoConfiguration {
         return new MulticastDiscoveryClient(discovery);
     }
 
+    /** 网关等纯消费方（register=false）也需要加入组播组接收实例广播 */
+    @Bean
+    @ConditionalOnMissingBean(MulticastDiscoveryLifecycle.class)
+    public MulticastDiscoveryLifecycle autumnMulticastDiscoveryLifecycle(MulticastDiscovery discovery) {
+        return new MulticastDiscoveryLifecycle(discovery);
+    }
+
     @Bean
     @ConditionalOnMissingBean(ReactiveDiscoveryClientAdapter.class)
     public ReactiveDiscoveryClientAdapter autumnMulticastReactiveDiscoveryClient(MulticastDiscoveryClient client) {

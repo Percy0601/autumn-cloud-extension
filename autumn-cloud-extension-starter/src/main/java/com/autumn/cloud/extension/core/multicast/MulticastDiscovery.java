@@ -66,6 +66,8 @@ public final class MulticastDiscovery implements AutoCloseable {
         MulticastSocket socket = new MulticastSocket(config.port());
         socket.setTimeToLive(config.ttl());
         NetworkInterface nif = resolveNetworkInterface(config.networkInterface());
+        // 从指定网卡收发，避免多网卡环境走错路径（如 VPN 虚拟网卡）
+        socket.setNetworkInterface(nif);
         socket.joinGroup(new InetSocketAddress(InetAddress.getByName(config.group()), config.port()), nif);
         this.socket = socket;
         running.set(true);
@@ -227,12 +229,13 @@ public final class MulticastDiscovery implements AutoCloseable {
             }
             return nif;
         }
+        // 只接受带 IPv4 地址的网卡：组播地址为 IPv4，纯 IPv6 网卡（utun/llw 等）会 join 失败
         for (Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces(); e.hasMoreElements(); ) {
             NetworkInterface nif = e.nextElement();
             if (!nif.isUp() || nif.isLoopback() || !nif.supportsMulticast()) {
                 continue;
             }
-            if (nif.getInetAddresses().hasMoreElements()) {
+            if (hasInet4Address(nif)) {
                 return nif;
             }
         }
@@ -241,6 +244,16 @@ public final class MulticastDiscovery implements AutoCloseable {
             throw new IOException("no multicast-capable network interface available");
         }
         return loopback;
+    }
+
+    private static boolean hasInet4Address(NetworkInterface nif) {
+        for (Enumeration<InetAddress> addresses = nif.getInetAddresses(); addresses.hasMoreElements(); ) {
+            InetAddress address = addresses.nextElement();
+            if (address instanceof java.net.Inet4Address && !address.isLoopbackAddress()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static ThreadFactory namedDaemon(String prefix) {
