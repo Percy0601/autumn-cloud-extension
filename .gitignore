@@ -1,0 +1,9 @@
+target/
+*.class
+*.jar
+!.mvn/wrapper/*.jar
+.idea/
+*.iml
+.DS_Store
+.vscode/
+dependency-reduced-pom.xml
