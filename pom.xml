@@ -17,6 +17,7 @@
         <module>autumn-cloud-extension-discovery-consul-starter</module>
         <module>autumn-cloud-extension-discovery-nacos-starter</module>
         <module>autumn-cloud-extension-discovery-multicast-starter</module>
+        <module>autumn-cloud-extension-traffic-starter</module>
         <module>autumn-cloud-extension-starter-using</module>
     </modules>
 
@@ -74,6 +75,11 @@
             <dependency>
                 <groupId>com.autumn.cloud</groupId>
                 <artifactId>autumn-cloud-extension-discovery-multicast-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.autumn.cloud</groupId>
+                <artifactId>autumn-cloud-extension-traffic-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

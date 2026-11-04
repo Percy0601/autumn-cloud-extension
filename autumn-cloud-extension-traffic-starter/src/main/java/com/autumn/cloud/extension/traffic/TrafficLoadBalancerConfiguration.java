@@ -1,4 +1,4 @@
-package com.autumn.cloud.extension.discovery.consul;
+package com.autumn.cloud.extension.traffic;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.client.discovery.DiscoveryClient;

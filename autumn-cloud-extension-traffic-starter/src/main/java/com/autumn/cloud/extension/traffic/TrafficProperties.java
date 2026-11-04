@@ -1,4 +1,4 @@
-package com.autumn.cloud.extension.discovery.nacos;
+package com.autumn.cloud.extension.traffic;
 
 import com.autumn.cloud.extension.core.traffic.Traffic;
 import org.springframework.boot.context.properties.ConfigurationProperties;

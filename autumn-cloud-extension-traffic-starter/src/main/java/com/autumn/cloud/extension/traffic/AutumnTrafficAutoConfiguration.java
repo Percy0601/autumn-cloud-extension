@@ -1,4 +1,4 @@
-package com.autumn.cloud.extension.discovery.nacos;
+package com.autumn.cloud.extension.traffic;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;

@@ -12,7 +12,7 @@
   - `nacos` —— 直连 Nacos OpenAPI v1，临时实例客户端心跳
   - `multicast` —— 纯 JDK UDP 组播实现，**零外部依赖**，适合开发环境
 - **动态服务发现**：服务实例数量变化实时感知，无需重启
-- **不引入注册中心 SDK**：全部走 HTTP API，仅依赖 `apache-httpclient5` + `jackson`
+- **不引入注册中心 SDK**：全部走 HTTP API，仅依赖 JDK `HttpClient` + `jackson`
 
 ### 2. 配置中心
 - **兼容 Spring Cloud Config 机制**：
@@ -24,9 +24,10 @@
 - **零 SDK 依赖**：纯 HTTP API 直连
 
 ### 3. 泳道路由（流量）
+- **独立 Starter**：`autumn-cloud-extension-traffic-starter`，按需引入
 - **HTTP Header 路由**：通过 `X-Traffic` 头将流量切到对应标签实例
-- **主干回落**：无特殊用到的实例，路由到 master/default 主干
-- **灰度发布**：支持多环境流量隔离（default / gray / beta 等）
+- **主干回落**：无特殊用到的实例，路由到 main 主干
+- **灰度发布**：支持多环境流量隔离（main / gray / beta 等）
 
 ### 4. GraalVM Native Image 友好
 - 纯 Java API（common 模块零 Spring 依赖）
@@ -37,7 +38,7 @@
 
 ```
 autumn-cloud-extension/
-├── autumn-cloud-extension-common      # 纯 Java 核心（零 Spring 依赖）
+├── autumn-cloud-extension-common                    # 纯 Java 核心（零 Spring 依赖）
 │   └── core/
 │       ├── api/                       # 通用 API 接口
 │       │   ├── ServiceDiscoveryClient # 服务发现客户端
@@ -45,16 +46,18 @@ autumn-cloud-extension/
 │       │   ├── ConfigCenterClient     # 配置中心客户端
 │       │   └── ConfigListener         # 配置监听器
 │       ├── model/                     # 服务实例模型
+│       ├── consul/                    # Consul HTTP API 客户端
+│       ├── nacos/                     # Nacos HTTP API 客户端
 │       ├── multicast/                 # 组播发现核心
-│       ├── trafficlabel/              # 流量选择器
+│       ├── traffic/                   # 流量选择器（纯 Java）
 │       └── http/                      # HTTP 工具
-├── autumn-cloud-extension-starter     # Spring Boot 自动装配
-│   ├── config/                        # 通用配置 + 配置刷新
-│   ├── consul/                        # Consul 后端
-│   ├── nacos/                         # Nacos 后端
-│   ├── multicast/                     # 组播后端
-│   └── trafficlabel/                  # 泳道路由
-└── autumn-cloud-extension-starter-using  # 使用示例
+├── autumn-cloud-extension-config-consul-starter     # Consul 配置中心 Starter
+├── autumn-cloud-extension-config-nacos-starter      # Nacos 配置中心 Starter
+├── autumn-cloud-extension-discovery-consul-starter  # Consul 服务发现 Starter
+├── autumn-cloud-extension-discovery-nacos-starter   # Nacos 服务发现 Starter
+├── autumn-cloud-extension-discovery-multicast-starter # 组播服务发现 Starter
+├── autumn-cloud-extension-traffic-starter           # 泳道路由 Starter（独立模块）
+└── autumn-cloud-extension-starter-using             # 使用示例
     ├── provider/                      # 服务提供方示例
     ├── gateway/                       # 网关示例
     └── config/                        # 配置中心示例
@@ -130,15 +133,33 @@ curl http://127.0.0.1:8103/config
 
 | 配置 | 默认值 | 说明 |
 |---|---|---|
-| `header-name` | `X-Traffic` | 携带流量的请求 header |
-| `fallback-to-main` | `true` | 目标签无实例时是否回落 default |
+| `header` | `X-Traffic` | 携带流量的请求 header |
+| `fallback-to-main` | `true` | 目标签无实例时是否回落 main |
 
 ## 接入项目
 
+按需引入 Starter：
+
 ```xml
+<!-- 服务发现（三选一） -->
 <dependency>
     <groupId>com.autumn.cloud</groupId>
-    <artifactId>autumn-cloud-extension-starter</artifactId>
+    <artifactId>autumn-cloud-extension-discovery-consul-starter</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+<!-- 或 nacos / multicast -->
+
+<!-- 配置中心（可选，二选一） -->
+<dependency>
+    <groupId>com.autumn.cloud</groupId>
+    <artifactId>autumn-cloud-extension-config-consul-starter</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+
+<!-- 泳道路由（可选，网关侧引入） -->
+<dependency>
+    <groupId>com.autumn.cloud</groupId>
+    <artifactId>autumn-cloud-extension-traffic-starter</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
