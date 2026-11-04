@@ -1,0 +1,2 @@
+com.autumn.cloud.extension.discovery.multicast.MulticastAutoConfiguration
+com.autumn.cloud.extension.discovery.multicast.AutumnTrafficAutoConfiguration

@@ -14,6 +14,7 @@ import java.nio.channels.DatagramChannel;
 import java.net.StandardProtocolFamily;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -70,9 +71,13 @@ public final class MulticastDiscovery implements AutoCloseable {
         InetAddress group = InetAddress.getByName(config.group());
         // IPv4 channel + bind 到组播地址本身（非通配地址）：同主机多进程共享 (group, port) 时，
         // 组播包按 BSD 语义投递给全部绑定 socket（bind 通配地址在 macOS 上仅最后 bind 的进程能收到）
+        // Windows 不允许 bind 非本机地址（组播地址），会抛 Cannot assign requested address，改为绑定通配地址
+        InetSocketAddress bindAddress = isWindows()
+                ? new InetSocketAddress(config.port())
+                : new InetSocketAddress(group, config.port());
         DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET)
                 .setOption(StandardSocketOptions.SO_REUSEADDR, true)
-                .bind(new InetSocketAddress(group, config.port()));
+                .bind(bindAddress);
         channel.join(group, nif);
         this.channel = channel;
         DatagramChannel sendChannel = DatagramChannel.open(StandardProtocolFamily.INET);
@@ -238,8 +243,7 @@ public final class MulticastDiscovery implements AutoCloseable {
                 new InetSocketAddress(InetAddress.getByName(config.group()), config.port()));
     }
 
-    private static NetworkInterface resolveNetworkInterface(String preferred) throws IOException {
-        if (preferred != null && !preferred.isBlank()) {
+    private static NetworkInterface resolveNetworkInterface(String preferred) throws IOException {        if (preferred != null && !preferred.isBlank()) {
             NetworkInterface nif = NetworkInterface.getByName(preferred);
             if (nif == null) {
                 throw new IOException("network interface not found: " + preferred);
@@ -271,6 +275,10 @@ public final class MulticastDiscovery implements AutoCloseable {
             }
         }
         return false;
+    }
+
+    private static boolean isWindows() {
+        return System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
     }
 
     private static ThreadFactory namedDaemon(String prefix) {

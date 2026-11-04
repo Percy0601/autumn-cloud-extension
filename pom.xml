@@ -12,7 +12,11 @@
 
     <modules>
         <module>autumn-cloud-extension-common</module>
-        <module>autumn-cloud-extension-starter</module>
+        <module>autumn-cloud-extension-config-consul-starter</module>
+        <module>autumn-cloud-extension-config-nacos-starter</module>
+        <module>autumn-cloud-extension-discovery-consul-starter</module>
+        <module>autumn-cloud-extension-discovery-nacos-starter</module>
+        <module>autumn-cloud-extension-discovery-multicast-starter</module>
         <module>autumn-cloud-extension-starter-using</module>
     </modules>
 
@@ -49,7 +53,27 @@
             </dependency>
             <dependency>
                 <groupId>com.autumn.cloud</groupId>
-                <artifactId>autumn-cloud-extension-starter</artifactId>
+                <artifactId>autumn-cloud-extension-config-consul-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.autumn.cloud</groupId>
+                <artifactId>autumn-cloud-extension-config-nacos-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.autumn.cloud</groupId>
+                <artifactId>autumn-cloud-extension-discovery-consul-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.autumn.cloud</groupId>
+                <artifactId>autumn-cloud-extension-discovery-nacos-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.autumn.cloud</groupId>
+                <artifactId>autumn-cloud-extension-discovery-multicast-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

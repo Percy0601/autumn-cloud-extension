@@ -18,9 +18,30 @@
     </properties>
 
     <dependencies>
+        <!-- Consul 配置中心 -->
         <dependency>
             <groupId>com.autumn.cloud</groupId>
-            <artifactId>autumn-cloud-extension-starter</artifactId>
+            <artifactId>autumn-cloud-extension-config-consul-starter</artifactId>
+        </dependency>
+        <!-- Nacos 配置中心 -->
+        <dependency>
+            <groupId>com.autumn.cloud</groupId>
+            <artifactId>autumn-cloud-extension-config-nacos-starter</artifactId>
+        </dependency>
+        <!-- Consul 服务发现 -->
+        <dependency>
+            <groupId>com.autumn.cloud</groupId>
+            <artifactId>autumn-cloud-extension-discovery-consul-starter</artifactId>
+        </dependency>
+        <!-- Nacos 服务发现 -->
+        <dependency>
+            <groupId>com.autumn.cloud</groupId>
+            <artifactId>autumn-cloud-extension-discovery-nacos-starter</artifactId>
+        </dependency>
+        <!-- 组播服务发现 -->
+        <dependency>
+            <groupId>com.autumn.cloud</groupId>
+            <artifactId>autumn-cloud-extension-discovery-multicast-starter</artifactId>
         </dependency>
         <!-- Provider：普通 WebFlux 服务，注册自身并提供 /hello -->
         <dependency>

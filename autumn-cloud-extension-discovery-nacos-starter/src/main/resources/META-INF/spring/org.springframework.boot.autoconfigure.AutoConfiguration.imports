@@ -1,0 +1,2 @@
+com.autumn.cloud.extension.discovery.nacos.NacosAutoConfiguration
+com.autumn.cloud.extension.discovery.nacos.AutumnTrafficAutoConfiguration

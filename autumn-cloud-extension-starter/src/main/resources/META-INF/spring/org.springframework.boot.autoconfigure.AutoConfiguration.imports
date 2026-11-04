@@ -1,5 +1,0 @@
-com.autumn.cloud.extension.consul.ConsulAutoConfiguration
-com.autumn.cloud.extension.nacos.NacosAutoConfiguration
-com.autumn.cloud.extension.multicast.MulticastAutoConfiguration
-com.autumn.cloud.extension.traffic.AutumnTrafficAutoConfiguration
-com.autumn.cloud.extension.config.ConfigCenterAutoConfiguration
