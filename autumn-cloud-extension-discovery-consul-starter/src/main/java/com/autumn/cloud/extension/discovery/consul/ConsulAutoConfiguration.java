@@ -56,6 +56,6 @@ public class ConsulAutoConfiguration {
     }
 
     private static ConsulSettings toSettings(ConsulProperties p) {
-        return new ConsulSettings(p.host(), p.port(), p.scheme(), p.token(), p.healthCheckTtlSeconds());
+        return new ConsulSettings(p.host(), p.port(), p.scheme(), p.token(), p.namespace(), p.healthCheckTtlSeconds());
     }
 }

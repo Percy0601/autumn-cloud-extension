@@ -125,10 +125,19 @@ public class ConsulClient implements AutoCloseable {
     }
 
     private Map<String, String> headers() {
-        if (settings.token() == null || settings.token().isBlank()) {
+        if ((settings.token() == null || settings.token().isBlank())
+                && (settings.namespace() == null || settings.namespace().isBlank())) {
             return null;
         }
-        return Map.of("X-Consul-Token", settings.token().trim());
+        Map<String, String> headers = new LinkedHashMap<>();
+        if (settings.token() != null && !settings.token().isBlank()) {
+            headers.put("X-Consul-Token", settings.token().trim());
+        }
+        if (settings.namespace() != null && !settings.namespace().isBlank()) {
+            // Consul Enterprise namespace（社区版忽略该 header）
+            headers.put("X-Consul-Namespace", settings.namespace().trim());
+        }
+        return headers;
     }
 
     private static String checkId(String instanceId) {

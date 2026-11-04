@@ -12,5 +12,6 @@ public record ConsulProperties(
         @DefaultValue("8500") int port,
         @DefaultValue("http") String scheme,
         String token,
+        String namespace,
         @DefaultValue("30") int healthCheckTtlSeconds) {
 }
