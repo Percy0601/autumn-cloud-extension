@@ -87,7 +87,7 @@ public class NacosConfigCenterClient implements ConfigCenterClient {
                 return null;
             }
             throw e;
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new HttpCallException("nacos get config failed: " + dataId, e);
         }
     }
@@ -102,7 +102,7 @@ public class NacosConfigCenterClient implements ConfigCenterClient {
             String url = configUrl();
             http.post(url + "?" + QueryStrings.encode(params), null);
             return true;
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new HttpCallException("nacos publish config failed: " + dataId, e);
         }
     }
@@ -116,7 +116,7 @@ public class NacosConfigCenterClient implements ConfigCenterClient {
             String url = configUrl() + "?" + QueryStrings.encode(params);
             http.delete(url, null);
             return true;
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new HttpCallException("nacos remove config failed: " + dataId, e);
         }
     }
@@ -167,7 +167,7 @@ public class NacosConfigCenterClient implements ConfigCenterClient {
             scheduler.shutdownNow();
             try {
                 http.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 log.warn("Failed to close HTTP client", e);
             }
         }

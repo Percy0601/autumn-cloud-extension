@@ -137,7 +137,7 @@ public class ConsulClient implements AutoCloseable {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         http.close();
     }
 }

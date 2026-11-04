@@ -71,7 +71,7 @@ public class ConsulConfigCenterClient implements ConfigCenterClient {
                 return null;
             }
             throw e;
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new HttpCallException("consul get config failed: " + key, e);
         }
     }
@@ -82,7 +82,7 @@ public class ConsulConfigCenterClient implements ConfigCenterClient {
         try {
             http.put(kvUrl(key), content, headers());
             return true;
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new HttpCallException("consul publish config failed: " + key, e);
         }
     }
@@ -93,7 +93,7 @@ public class ConsulConfigCenterClient implements ConfigCenterClient {
         try {
             http.delete(kvUrl(key), headers());
             return true;
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new HttpCallException("consul remove config failed: " + key, e);
         }
     }
@@ -144,7 +144,7 @@ public class ConsulConfigCenterClient implements ConfigCenterClient {
             scheduler.shutdownNow();
             try {
                 http.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 log.warn("Failed to close HTTP client", e);
             }
         }

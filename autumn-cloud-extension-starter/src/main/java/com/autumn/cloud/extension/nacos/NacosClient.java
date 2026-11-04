@@ -139,7 +139,7 @@ public class NacosClient implements AutoCloseable {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         http.close();
     }
 }

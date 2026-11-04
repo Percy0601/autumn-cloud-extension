@@ -14,11 +14,6 @@
     <description>Common core module for autumn-cloud-extension: pure Java API with zero Spring dependencies</description>
 
     <dependencies>
-        <!-- HTTP client for registry API calls -->
-        <dependency>
-            <groupId>org.apache.httpcomponents.client5</groupId>
-            <artifactId>httpclient5</artifactId>
-        </dependency>
         <!-- JSON processing -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
