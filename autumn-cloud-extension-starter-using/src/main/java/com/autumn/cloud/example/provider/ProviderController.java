@@ -19,8 +19,8 @@ public class ProviderController {
     @Value("${server.port}")
     private int port;
 
-    @Value("${autumn.discovery.traffic-label:default}")
-    private String trafficLabel;
+    @Value("${autumn.discovery.traffic:default}")
+    private String traffic;
 
     @GetMapping("/hello")
     public Map<String, Object> hello() {
@@ -28,6 +28,6 @@ public class ProviderController {
                 "service", service,
                 "host", Networks.localHostAddress(),
                 "port", port,
-                "trafficLabel", trafficLabel);
+                "traffic", traffic);
     }
 }

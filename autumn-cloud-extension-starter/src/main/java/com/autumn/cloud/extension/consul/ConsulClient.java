@@ -2,7 +2,7 @@ package com.autumn.cloud.extension.consul;
 
 import com.autumn.cloud.extension.core.http.HttpCallException;
 import com.autumn.cloud.extension.core.http.JsonHttp;
-import com.autumn.cloud.extension.core.trafficlabel.TrafficLabel;
+import com.autumn.cloud.extension.core.traffic.Traffic;
 import com.autumn.cloud.extension.core.model.InstanceRegistration;
 import com.autumn.cloud.extension.core.model.InstanceSnapshot;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -54,8 +54,8 @@ public class ConsulClient implements AutoCloseable {
             body.put("Port", registration.port());
             ObjectNode meta = body.putObject("Meta");
             registration.metadata().forEach(meta::put);
-            if (registration.trafficLabel() != null) {
-                body.putArray("Tags").add(TrafficLabel.META_KEY + "=" + registration.trafficLabel());
+            if (registration.traffic() != null) {
+                body.putArray("Tags").add(Traffic.META_KEY + "=" + registration.traffic());
             }
             ObjectNode check = body.putObject("Check");
             check.put("CheckID", checkId(registration.instanceId()));
@@ -84,7 +84,7 @@ public class ConsulClient implements AutoCloseable {
         }
     }
 
-    /** 健康实例列表（passing=true，流量标签在 Meta["traffic-label"]）。 */
+    /** 健康实例列表（passing=true，流量标签在 Meta["traffic"]）。 */
     public List<InstanceSnapshot> listInstances(String service) {
         try {
             String body = http.get(baseUrl() + "/v1/health/service/" + urlEncode(service) + "?passing=true", headers());

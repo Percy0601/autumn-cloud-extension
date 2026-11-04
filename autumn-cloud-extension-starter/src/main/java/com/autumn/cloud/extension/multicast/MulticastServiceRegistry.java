@@ -29,9 +29,9 @@ public class MulticastServiceRegistry implements ServiceRegistry<AutumnRegistrat
             throw new IllegalStateException("multicast start failed: " + e.getMessage(), e);
         }
         discovery.publish(registration.getInstanceRegistration());
-        log.info("Published via multicast: {} ({}:{}) trafficLabel={}",
+        log.info("Published via multicast: {} ({}:{}) traffic={}",
                 registration.getServiceId(), registration.getHost(), registration.getPort(),
-                registration.getMetadata().get("traffic-label"));
+                registration.getMetadata().get("traffic"));
     }
 
     @Override

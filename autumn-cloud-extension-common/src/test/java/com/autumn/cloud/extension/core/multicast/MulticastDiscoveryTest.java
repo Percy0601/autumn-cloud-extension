@@ -18,7 +18,7 @@ class MulticastDiscoveryTest {
             new MulticastConfig("239.255.42.99", 5555, 1, 100, 1000, null));
 
     private final InstanceRegistration registration = new InstanceRegistration(
-            "demo-service", "demo-1", "10.0.0.1", 8080, Map.of("traffic-label", "gray"));
+            "demo-service", "demo-1", "10.0.0.1", 8080, Map.of("traffic", "gray"));
 
     private String frame(String type, InstanceRegistration registration) throws Exception {
         return MAPPER.writeValueAsString(new MulticastDiscovery.Frame(type, registration));
@@ -29,7 +29,7 @@ class MulticastDiscoveryTest {
         discovery.onFrame(frame("hb", registration), System.currentTimeMillis());
         List<com.autumn.cloud.extension.core.model.InstanceSnapshot> instances = discovery.getInstances("demo-service");
         assertEquals(1, instances.size());
-        assertEquals("gray", instances.get(0).trafficLabel());
+        assertEquals("gray", instances.get(0).traffic());
         assertTrue(discovery.listServices().contains("demo-service"));
     }
 

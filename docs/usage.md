@@ -11,7 +11,7 @@
                         ├─────────────────────────────────────────────┤
   core（纯 Java，零 Spring 依赖，可独立作为 Java API 使用）           │
    ├─ model          InstanceRegistration / InstanceSnapshot         │
-   ├─ trafficlabel   TrafficLabel 常量 / TrafficLabelSelector 选择器  │
+   ├─ trafficlabel   Traffic 常量 / TrafficSelector 选择器  │
    ├─ http           JsonHttp（apache-httpclient5 封装）              │
    ├─ multicast      MulticastDiscovery（UDP 组播核心）               │
    └─ util           Networks                                        │
@@ -22,8 +22,8 @@
    ├─ consul     Consul HTTP API 后端（TTL 续约）                      │
    ├─ nacos      Nacos OpenAPI v1 后端（客户端心跳）                   │
    ├─ multicast  组播后端                                              │
-   └─ trafficlabel  TrafficLabelServiceInstanceListSupplier           │
-                   （LoadBalancer 实例列表流量标签过滤）                │
+   └─ trafficlabel  TrafficServiceInstanceListSupplier           │
+                   （LoadBalancer 实例列表流量过滤）                │
                         └─────────────────────────────────────────────┘
 ```
 
@@ -53,7 +53,7 @@
 | `autumn.discovery.service` | `spring.application.name` | 注册的服务名 |
 | `autumn.discovery.host` | 自动探测本机 IP | 注册地址 |
 | `autumn.discovery.port` | `server.port` | 注册端口 |
-| `autumn.discovery.traffic-label` | `default` | **本实例流量标签**，写入 metadata `traffic-label` |
+| `autumn.discovery.traffic` | `default` | **本实例流量**，写入 metadata `traffic` |
 | `autumn.discovery.metadata.xxx` | - | 附加元数据 |
 
 ### 3.2 Consul（前缀 `autumn.discovery.consul`）
@@ -68,7 +68,7 @@
 
 使用的 HTTP API：`PUT /v1/agent/service/register`、`PUT /v1/agent/service/deregister/{id}`、
 `PUT /v1/agent/check/pass/service:{id}`、`GET /v1/health/service/{name}?passing=true`、`GET /v1/catalog/services`。
-流量标签写入 Service `Meta["traffic-label"]` 与 `Tags`。
+流量写入 Service `Meta["traffic"]` 与 `Tags`。
 
 ### 3.3 Nacos（前缀 `autumn.discovery.nacos`）
 
@@ -82,7 +82,7 @@
 
 使用的 OpenAPI v1：`POST /nacos/v1/ns/instance`（注册，ephemeral=true）、`PUT /nacos/v1/ns/instance/beat`、
 `DELETE /nacos/v1/ns/instance`、`GET /nacos/v1/ns/instance/list?healthyOnly=true`、`GET /nacos/v1/ns/service/list`。
-流量标签写入实例 `metadata["traffic-label"]`。
+流量写入实例 `metadata["traffic"]`。
 
 ### 3.4 组播（前缀 `autumn.discovery.multicast`）
 
@@ -100,39 +100,39 @@
 - **独立发送通道**（未 bind），源地址为本机 IP（源地址为组播地址的包会被丢弃）
 - 正常停机广播 `bye` 帧即时摘除；异常退出靠超时清扫
 
-### 3.5 流量标签路由（前缀 `autumn.traffic-label`，网关侧）
+### 3.5 流量路由（前缀 `autumn.traffic`，网关侧）
 
 | 配置 | 默认值 | 说明 |
 |---|---|---|
-| `header-name` | `X-Autumn-Traffic-Label` | 携带流量标签的请求 header |
-| `fallback-to-default` | `true` | 目标签无实例时是否回落 |
+| `header-name` | `X-Traffic` | 携带流量的请求 header |
+| `fallback-to-main` | `true` | 目标签无实例时是否回落 |
 
-## 4. 流量标签路由规则
+## 4. 流量路由规则
 
 调用链（对齐 autumn-gateway 的 LoadBalancer 扩展模式）：
 
 ```
 请求 → Gateway(lb://demo-service)
      → ReactorLoadBalancer(RoundRobin)
-       → TrafficLabelServiceInstanceListSupplier.get(request)   ← 本扩展
+       → TrafficServiceInstanceListSupplier.get(request)   ← 本扩展
          → DiscoveryClientServiceInstanceListSupplier
            → Consul/Nacos/Multicast DiscoveryClient
 ```
 
-匹配规则（`TrafficLabelSelector`）：
+匹配规则（`TrafficSelector`）：
 
-1. 请求 header（默认 `X-Autumn-Traffic-Label`）指定标签 → 只返回 metadata `traffic-label` 相同的实例
+1. 请求 header（默认 `X-Traffic`）指定标签 → 只返回 metadata `traffic` 相同的实例
 2. 未携带 header → 视为 `default` 标签 → 只返回未打标/default 实例
-3. 目标签无实例且 `fallback-to-default=true` → 回落 default 标签实例 → 仍无则放行全部（保可用）
-4. `fallback-to-default=false` 时无匹配即 503（快速失败，避免灰度流量打到正式实例）
+3. 目标签无实例且 `fallback-to-main=true` → 回落 default 标签实例 → 仍无则放行全部（保可用）
+4. `fallback-to-main=false` 时无匹配即 503（快速失败，避免灰度流量打到正式实例）
 
 典型用法：
 
-| 实例 | autumn.discovery.traffic-label | 请求 | 命中 |
+| 实例 | autumn.discovery.traffic | 请求 | 命中 |
 |---|---|---|---|
 | A:8101 | （缺省 default） | 无 header | A |
-| B:8102 | gray | `X-Autumn-Traffic-Label: gray` | B |
-| A + B | - | `X-Autumn-Traffic-Label: beta` | 回落 A |
+| B:8102 | gray | `X-Traffic: gray` | B |
+| A + B | - | `X-Traffic: beta` | 回落 A |
 
 ## 5. 示例模块（autumn-cloud-extension-starter-using）
 
@@ -163,11 +163,11 @@ MulticastDiscovery discovery = new MulticastDiscovery(
         new MulticastConfig("239.192.71.88", 47891, 1, 3000, 15000, null));
 discovery.start();
 discovery.publish(new InstanceRegistration("demo-service", "demo-1", "10.0.0.1", 8080,
-        Map.of("traffic-label", "gray")));
+        Map.of("traffic", "gray")));
 
 List<InstanceSnapshot> instances = discovery.getInstances("demo-service");
-List<InstanceSnapshot> grayOnly = TrafficLabelSelector.select(
-        instances, "gray", InstanceSnapshot::trafficLabel, true);
+List<InstanceSnapshot> grayOnly = TrafficSelector.select(
+        instances, "gray", InstanceSnapshot::traffic, true);
 discovery.close();
 
 // HTTP API 直连（Consul 示例）
@@ -179,7 +179,7 @@ try (JsonHttp http = new JsonHttp()) {
 ## 7. 构建与测试
 
 ```bash
-mvn clean package        # 全模块构建 + 单元测试（TrafficLabelSelector / MulticastDiscovery）
+mvn clean package        # 全模块构建 + 单元测试（TrafficSelector / MulticastDiscovery）
 mvn clean install        # 安装到本地仓库供示例/外部项目引用
 ```
 

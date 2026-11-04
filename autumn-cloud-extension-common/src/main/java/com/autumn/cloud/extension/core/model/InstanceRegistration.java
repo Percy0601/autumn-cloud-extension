@@ -1,6 +1,6 @@
 package com.autumn.cloud.extension.core.model;
 
-import com.autumn.cloud.extension.core.trafficlabel.TrafficLabel;
+import com.autumn.cloud.extension.core.traffic.Traffic;
 
 import java.util.Map;
 
@@ -11,7 +11,7 @@ import java.util.Map;
  * @param instanceId 实例唯一标识，如 {@code user-service-10.0.0.1:8080}
  * @param host       主机地址
  * @param port       端口
- * @param metadata   元数据，可携带流量标签（key = {@link TrafficLabel#META_KEY}）等
+ * @param metadata   元数据，可携带流量（key = {@link Traffic#META_KEY}）等
  */
 public record InstanceRegistration(String service, String instanceId, String host, int port,
                                    Map<String, String> metadata) {
@@ -20,9 +20,9 @@ public record InstanceRegistration(String service, String instanceId, String hos
         metadata = metadata == null ? Map.of() : Map.copyOf(metadata);
     }
 
-    /** 该实例所属流量标签，未打标返回 null。 */
-    public String trafficLabel() {
-        return metadata.get(TrafficLabel.META_KEY);
+    /** 该实例所属流量，未打标返回 null。 */
+    public String traffic() {
+        return metadata.get(Traffic.META_KEY);
     }
 
     public InstanceSnapshot snapshot() {

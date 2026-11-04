@@ -1,6 +1,6 @@
 package com.autumn.cloud.extension.core.model;
 
-import com.autumn.cloud.extension.core.trafficlabel.TrafficLabel;
+import com.autumn.cloud.extension.core.traffic.Traffic;
 
 import java.util.Map;
 
@@ -14,8 +14,8 @@ public record InstanceSnapshot(String service, String instanceId, String host, i
         metadata = metadata == null ? Map.of() : Map.copyOf(metadata);
     }
 
-    /** 该实例所属流量标签，未打标返回 null。 */
-    public String trafficLabel() {
-        return metadata.get(TrafficLabel.META_KEY);
+    /** 该实例所属流量，未打标返回 null。 */
+    public String traffic() {
+        return metadata.get(Traffic.META_KEY);
     }
 }

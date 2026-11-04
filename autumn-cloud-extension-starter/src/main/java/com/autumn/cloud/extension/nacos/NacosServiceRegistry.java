@@ -41,9 +41,9 @@ public class NacosServiceRegistry implements ServiceRegistry<AutumnRegistration>
         scheduler.scheduleAtFixedRate(this::beat, properties.beatIntervalMs(), properties.beatIntervalMs(),
                 TimeUnit.MILLISECONDS);
         this.scheduler = scheduler;
-        log.info("Registered in Nacos: {} ({}:{}) trafficLabel={}",
+        log.info("Registered in Nacos: {} ({}:{}) traffic={}",
                 registration.getServiceId(), registration.getHost(), registration.getPort(),
-                registration.getMetadata().get("traffic-label"));
+                registration.getMetadata().get("traffic"));
     }
 
     @Override

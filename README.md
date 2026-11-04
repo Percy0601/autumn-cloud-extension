@@ -1,6 +1,6 @@
 # autumn-cloud-extension
 
-轻量级 **Spring Cloud 服务发现与配置管理扩展**：一个 starter 集成三种注册中心后端 + 配置中心 + 多流量标签（traffic-label）泳道路由。
+轻量级 **Spring Cloud 服务发现与配置管理扩展**：一个 starter 集成三种注册中心后端 + 配置中心 + 多流量（traffic）泳道路由。
 
 > 基线：Spring Boot 4.1.x / Spring Cloud 2025.1.x / Java 17+（编译目标 17，可运行于 17~25）
 
@@ -23,8 +23,8 @@
   - `consul` —— Consul KV API
 - **零 SDK 依赖**：纯 HTTP API 直连
 
-### 3. 泳道路由（流量标签）
-- **HTTP Header 路由**：通过 `X-Autumn-Traffic-Label` 头将流量切到对应标签实例
+### 3. 泳道路由（流量）
+- **HTTP Header 路由**：通过 `X-Traffic` 头将流量切到对应标签实例
 - **主干回落**：无特殊用到的实例，路由到 master/default 主干
 - **灰度发布**：支持多环境流量隔离（default / gray / beta 等）
 
@@ -46,7 +46,7 @@ autumn-cloud-extension/
 │       │   └── ConfigListener         # 配置监听器
 │       ├── model/                     # 服务实例模型
 │       ├── multicast/                 # 组播发现核心
-│       ├── trafficlabel/              # 流量标签选择器
+│       ├── trafficlabel/              # 流量选择器
 │       └── http/                      # HTTP 工具
 ├── autumn-cloud-extension-starter     # Spring Boot 自动装配
 │   ├── config/                        # 通用配置 + 配置刷新
@@ -84,14 +84,14 @@ mvn spring-boot:run -Dspring-boot.run.main-class=com.autumn.cloud.example.gatewa
 ```bash
 # 无 header → default 实例（8101）
 curl http://127.0.0.1:8080/api/hello
-# {"service":"demo-service","trafficLabel":"default","port":8101,...}
+# {"service":"demo-service","traffic":"default","port":8101,...}
 
 # gray 标签 → 灰度实例（8102）
-curl -H "X-Autumn-Traffic-Label: gray" http://127.0.0.1:8080/api/hello
-# {"service":"demo-service","trafficLabel":"gray","port":8102,...}
+curl -H "X-Traffic: gray" http://127.0.0.1:8080/api/hello
+# {"service":"demo-service","traffic":"gray","port":8102,...}
 
 # 不存在的标签 → 回落 default
-curl -H "X-Autumn-Traffic-Label: beta" http://127.0.0.1:8080/api/hello
+curl -H "X-Traffic: beta" http://127.0.0.1:8080/api/hello
 ```
 
 ### 配置中心示例
@@ -115,7 +115,7 @@ curl http://127.0.0.1:8103/config
 | `backend` | 无（必填） | `consul` / `nacos` / `multicast` 三选一 |
 | `register` | `true` | 是否注册自身（网关侧设为 `false`） |
 | `service` | `spring.application.name` | 注册的服务名 |
-| `traffic-label` | `default` | 本实例流量标签（泳道标识） |
+| `traffic` | `default` | 本实例流量（泳道标识） |
 
 ### 配置中心（前缀 `autumn.config`）
 
@@ -126,12 +126,12 @@ curl http://127.0.0.1:8103/config
 | `refresh-enabled` | `true` | 是否启用配置自动刷新 |
 | `default-group` | `DEFAULT_GROUP` | 默认分组 |
 
-### 泳道路由（前缀 `autumn.traffic-label`）
+### 泳道路由（前缀 `autumn.traffic`）
 
 | 配置 | 默认值 | 说明 |
 |---|---|---|
-| `header-name` | `X-Autumn-Traffic-Label` | 携带流量标签的请求 header |
-| `fallback-to-default` | `true` | 目标签无实例时是否回落 default |
+| `header-name` | `X-Traffic` | 携带流量的请求 header |
+| `fallback-to-main` | `true` | 目标签无实例时是否回落 default |
 
 ## 接入项目
 
@@ -149,7 +149,7 @@ spring.application.name=demo-service
 server.port=8101
 autumn.discovery.backend=nacos
 autumn.discovery.nacos.server-addr=127.0.0.1:8848
-autumn.discovery.traffic-label=gray
+autumn.discovery.traffic=gray
 
 # 配置中心
 autumn.config.enabled=true

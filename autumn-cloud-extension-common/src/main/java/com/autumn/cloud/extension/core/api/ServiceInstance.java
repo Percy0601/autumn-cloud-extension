@@ -52,9 +52,9 @@ public interface ServiceInstance {
     Map<String, String> getMetadata();
 
     /**
-     * 获取流量标签（元数据中的 traffic-label）
+     * 获取流量（元数据中的 traffic）
      */
-    default String getTrafficLabel() {
-        return getMetadata().get("traffic-label");
+    default String getTraffic() {
+        return getMetadata().get("traffic");
     }
 }

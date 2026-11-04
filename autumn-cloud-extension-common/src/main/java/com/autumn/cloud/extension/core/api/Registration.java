@@ -48,14 +48,14 @@ public interface Registration {
     String getUri();
 
     /**
-     * 实例元数据（可携带流量标签、版本等信息）
+     * 实例元数据（可携带流量、版本等信息）
      */
     Map<String, String> getMetadata();
 
     /**
-     * 获取流量标签（元数据中的 traffic-label）
+     * 获取流量（元数据中的 traffic）
      */
-    default String getTrafficLabel() {
-        return getMetadata().get("traffic-label");
+    default String getTraffic() {
+        return getMetadata().get("traffic");
     }
 }

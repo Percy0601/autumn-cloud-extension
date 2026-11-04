@@ -82,7 +82,7 @@ public class NacosClient implements AutoCloseable {
         }
     }
 
-    /** 健康实例列表（流量标签在 metadata["traffic-label"]）。 */
+    /** 健康实例列表（流量标签在 metadata["traffic"]）。 */
     public List<InstanceSnapshot> listInstances(String service) {
         Map<String, String> params = commonParams(service);
         params.put("healthyOnly", "true");

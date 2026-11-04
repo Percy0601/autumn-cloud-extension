@@ -1,6 +1,6 @@
 package com.autumn.cloud.extension.config;
 
-import com.autumn.cloud.extension.core.trafficlabel.TrafficLabel;
+import com.autumn.cloud.extension.core.traffic.Traffic;
 import com.autumn.cloud.extension.core.model.InstanceRegistration;
 import com.autumn.cloud.extension.core.util.Networks;
 import org.springframework.core.env.Environment;
@@ -27,8 +27,8 @@ public final class Registrations {
                 : environment.getProperty("server.port", Integer.class, 8080);
 
         Map<String, String> metadata = new HashMap<>(properties.metadata());
-        if (properties.trafficLabel() != null && !properties.trafficLabel().isBlank()) {
-            metadata.put(TrafficLabel.META_KEY, properties.trafficLabel().trim());
+        if (properties.traffic() != null && !properties.traffic().isBlank()) {
+            metadata.put(Traffic.META_KEY, properties.traffic().trim());
         }
         String instanceId = service + "-" + host + ":" + port;
         return new InstanceRegistration(service, instanceId, host, port, metadata);

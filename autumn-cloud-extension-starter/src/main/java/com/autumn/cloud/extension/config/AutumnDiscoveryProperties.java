@@ -20,8 +20,8 @@ public record AutumnDiscoveryProperties(
         String host,
         /** 注册端口，缺省取 server.port（再缺省 8080） */
         Integer port,
-        /** 本实例所属流量标签，写入 metadata["traffic-label"]；缺省视为 default 流量标签 */
-        String trafficLabel,
+        /** 本实例所属流量，写入 metadata["traffic"]；缺省视为 main 主干流量 */
+        String traffic,
         /** 附加元数据 */
         Map<String, String> metadata) {
 

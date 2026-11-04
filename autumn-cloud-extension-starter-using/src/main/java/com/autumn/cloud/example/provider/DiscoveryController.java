@@ -73,7 +73,7 @@ public class DiscoveryController {
         map.put("uri", instance.getUri().toString());
         map.put("metadata", instance.getMetadata());
         // 从 metadata 中提取流量标签
-        map.put("trafficLabel", instance.getMetadata().getOrDefault("traffic-label", "default"));
+        map.put("traffic", instance.getMetadata().getOrDefault("traffic", "default"));
         return map;
     }
 }

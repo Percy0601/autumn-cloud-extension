@@ -41,9 +41,9 @@ public class ConsulServiceRegistry implements ServiceRegistry<AutumnRegistration
         });
         scheduler.scheduleAtFixedRate(this::passCheck, passIntervalMs, passIntervalMs, TimeUnit.MILLISECONDS);
         this.scheduler = scheduler;
-        log.info("Registered in Consul: {} ({}:{}) trafficLabel={}",
+        log.info("Registered in Consul: {} ({}:{}) traffic={}",
                 registration.getServiceId(), registration.getHost(), registration.getPort(),
-                registration.getMetadata().get("traffic-label"));
+                registration.getMetadata().get("traffic"));
     }
 
     @Override
