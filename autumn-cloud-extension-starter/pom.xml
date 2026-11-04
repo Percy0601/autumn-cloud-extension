@@ -14,6 +14,11 @@
     <description>Lightweight discovery starter for Spring Cloud Gateway: Consul / Nacos (pure HTTP API, apache-httpclient5) and UDP multicast, with multi-lane load balancing</description>
 
     <dependencies>
+        <!-- 依赖 common 模块（纯 Java 核心） -->
+        <dependency>
+            <groupId>com.autumn.cloud</groupId>
+            <artifactId>autumn-cloud-extension-common</artifactId>
+        </dependency>
         <!-- core 包保持零 Spring 依赖，以下为 Spring 集成层依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -33,6 +38,11 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-commons</artifactId>
         </dependency>
+        <!-- Spring Cloud Context：ContextRefresher 用于配置自动刷新 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-context</artifactId>
+        </dependency>
         <!-- 仅用于泳道 ServiceInstanceListSupplier 扩展 -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -41,14 +51,6 @@
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents.client5</groupId>
-            <artifactId>httpclient5</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -6,6 +6,7 @@ import com.autumn.cloud.extension.config.AutumnRegistration;
 import com.autumn.cloud.extension.config.ReactiveDiscoveryClientAdapter;
 import com.autumn.cloud.extension.config.Registrations;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -17,10 +18,18 @@ import org.springframework.core.env.Environment;
 
 /**
  * Nacos 后端自动装配：{@code autumn.discovery.backend=nacos} 时加载。
+ *
+ * <p>条件装配：</p>
+ * <ul>
+ *     <li>{@code @ConditionalOnDiscoveryEnabled} - Spring Cloud Discovery 启用时</li>
+ *     <li>{@code @ConditionalOnProperty(backend=nacos)} - 显式指定 nacos 后端</li>
+ *     <li>{@code @ConditionalOnClass} - classpath 存在 HTTP 客户端依赖</li>
+ * </ul>
  */
 @AutoConfiguration
 @ConditionalOnDiscoveryEnabled
 @ConditionalOnProperty(prefix = "autumn.discovery", name = "backend", havingValue = "nacos")
+@ConditionalOnClass(name = "org.apache.hc.client5.http.impl.classic.HttpClients")
 @EnableConfigurationProperties({NacosProperties.class, AutumnDiscoveryProperties.class})
 public class NacosAutoConfiguration {
 

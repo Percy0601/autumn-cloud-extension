@@ -33,6 +33,11 @@
             <artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
             <version>${spring-cloud-starter-gateway-server-webflux.version}</version>
         </dependency>
+        <!-- Spring Cloud Context：@RefreshScope 支持 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-context</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

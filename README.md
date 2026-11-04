@@ -1,41 +1,85 @@
 # autumn-cloud-extension
 
-轻量级 **Spring Cloud Gateway 服务发现扩展**：一个 starter 集成三种注册中心后端 + 多流量标签（traffic-label）负载均衡。
+轻量级 **Spring Cloud 服务发现与配置管理扩展**：一个 starter 集成三种注册中心后端 + 配置中心 + 多流量标签（traffic-label）泳道路由。
 
 > 基线：Spring Boot 4.1.x / Spring Cloud 2025.1.x / Java 17+（编译目标 17，可运行于 17~25）
 
-## 特性
+## 核心能力
 
-- **三后端合一**（`autumn.discovery.backend` 三选一互斥装配，Spring 条件加载）：
-  - `consul` —— 直连 Consul HTTP API（`/v1/agent/service/register`、`/v1/health/service?passing=true`），TTL 健康检查自动续约
-  - `nacos` —— 直连 Nacos OpenAPI v1（注册/心跳/实例列表），临时实例客户端心跳
-  - `multicast` —— 纯 JDK UDP 组播实现，**零外部依赖**，适合开发环境/小型局域网
-- **不引入注册中心 SDK**：Consul / Nacos 全部走 HTTP API，仅依赖 `apache-httpclient5` + `jackson`
-- **多流量标签（traffic-label）路由**：实例注册时打标（metadata `traffic-label`），网关按 HTTP header（默认 `X-Autumn-Traffic-Label`）把流量切到对应标签实例，支持 default 兜底回落
-- **轻量 & Native Image 友好**：`core` 包零 Spring 依赖（可纯 Java API 使用）、构造器注入、无反射路由、注册表全内存
+### 1. 服务注册与发现
+- **三后端合一**（`autumn.discovery.backend` 三选一互斥装配）：
+  - `consul` —— 直连 Consul HTTP API，TTL 健康检查自动续约
+  - `nacos` —— 直连 Nacos OpenAPI v1，临时实例客户端心跳
+  - `multicast` —— 纯 JDK UDP 组播实现，**零外部依赖**，适合开发环境
+- **动态服务发现**：服务实例数量变化实时感知，无需重启
+- **不引入注册中心 SDK**：全部走 HTTP API，仅依赖 `apache-httpclient5` + `jackson`
 
-## 模块
+### 2. 配置中心
+- **兼容 Spring Cloud Config 机制**：
+  - `@RefreshScope` + `@Value` 自动刷新配置
+  - 配置变更监听：Nacos 长轮询 / Consul blocking query
+- **双后端支持**（`autumn.config.backend` 二选一）：
+  - `nacos` —— Nacos Config API v1
+  - `consul` —— Consul KV API
+- **零 SDK 依赖**：纯 HTTP API 直连
 
-| 模块 | 说明 |
-|---|---|
-| `autumn-cloud-extension-starter` | 核心 starter：`core`（纯 Java：模型/流量标签选择器/HTTP 封装/组播）+ consul/nacos/multicast 三后端 + LoadBalancer 流量标签过滤 |
-| `autumn-cloud-extension-starter-using` | 使用示例：Provider（双流量标签实例）+ Gateway（lb:// 路由），含 consul/nacos/multicast profile |
+### 3. 泳道路由（流量标签）
+- **HTTP Header 路由**：通过 `X-Autumn-Traffic-Label` 头将流量切到对应标签实例
+- **主干回落**：无特殊用到的实例，路由到 master/default 主干
+- **灰度发布**：支持多环境流量隔离（default / gray / beta 等）
 
-## 快速开始（组播，零外部依赖）
+### 4. GraalVM Native Image 友好
+- 纯 Java API（common 模块零 Spring 依赖）
+- 无反射路由、构造器注入
+- record 类 + `AutoConfiguration.imports` 注册
+
+## 模块结构
+
+```
+autumn-cloud-extension/
+├── autumn-cloud-extension-common      # 纯 Java 核心（零 Spring 依赖）
+│   └── core/
+│       ├── api/                       # 通用 API 接口
+│       │   ├── ServiceDiscoveryClient # 服务发现客户端
+│       │   ├── ServiceRegistryClient  # 服务注册客户端
+│       │   ├── ConfigCenterClient     # 配置中心客户端
+│       │   └── ConfigListener         # 配置监听器
+│       ├── model/                     # 服务实例模型
+│       ├── multicast/                 # 组播发现核心
+│       ├── trafficlabel/              # 流量标签选择器
+│       └── http/                      # HTTP 工具
+├── autumn-cloud-extension-starter     # Spring Boot 自动装配
+│   ├── config/                        # 通用配置 + 配置刷新
+│   ├── consul/                        # Consul 后端
+│   ├── nacos/                         # Nacos 后端
+│   ├── multicast/                     # 组播后端
+│   └── trafficlabel/                  # 泳道路由
+└── autumn-cloud-extension-starter-using  # 使用示例
+    ├── provider/                      # 服务提供方示例
+    ├── gateway/                       # 网关示例
+    └── config/                        # 配置中心示例
+```
+
+## 快速开始
+
+### 组播后端（零外部依赖）
 
 ```bash
 mvn clean install -DskipTests
 
 cd autumn-cloud-extension-starter-using
+
 # 终端1：default 标签 provider（8101）
 mvn spring-boot:run -Dspring-boot.run.main-class=com.autumn.cloud.example.provider.ProviderApplication -Dspring-boot.run.profiles=provider
+
 # 终端2：gray 标签 provider（8102）
 mvn spring-boot:run -Dspring-boot.run.main-class=com.autumn.cloud.example.provider.ProviderApplication -Dspring-boot.run.profiles=provider-gray
+
 # 终端3：网关（8080）
 mvn spring-boot:run -Dspring-boot.run.main-class=com.autumn.cloud.example.gateway.GatewayApplication -Dspring-boot.run.profiles=gateway
 ```
 
-验证流量标签路由：
+验证泳道路由：
 
 ```bash
 # 无 header → default 实例（8101）
@@ -50,7 +94,46 @@ curl -H "X-Autumn-Traffic-Label: gray" http://127.0.0.1:8080/api/hello
 curl -H "X-Autumn-Traffic-Label: beta" http://127.0.0.1:8080/api/hello
 ```
 
-## 接入自己的项目
+### 配置中心示例
+
+```bash
+# 启动配置中心示例（需先启动 Nacos 或 Consul）
+mvn spring-boot:run -Dspring-boot.run.main-class=com.autumn.cloud.example.config.ConfigApplication -Dspring-boot.run.profiles=config,nacos
+
+# 查看当前配置
+curl http://127.0.0.1:8103/config
+
+# 在 Nacos 控制台修改配置后，再次访问 /config 观察自动刷新
+```
+
+## 配置项
+
+### 服务发现（前缀 `autumn.discovery`）
+
+| 配置 | 默认值 | 说明 |
+|---|---|---|
+| `backend` | 无（必填） | `consul` / `nacos` / `multicast` 三选一 |
+| `register` | `true` | 是否注册自身（网关侧设为 `false`） |
+| `service` | `spring.application.name` | 注册的服务名 |
+| `traffic-label` | `default` | 本实例流量标签（泳道标识） |
+
+### 配置中心（前缀 `autumn.config`）
+
+| 配置 | 默认值 | 说明 |
+|---|---|---|
+| `enabled` | `true` | 是否启用配置中心 |
+| `backend` | 无 | `nacos` / `consul` 二选一 |
+| `refresh-enabled` | `true` | 是否启用配置自动刷新 |
+| `default-group` | `DEFAULT_GROUP` | 默认分组 |
+
+### 泳道路由（前缀 `autumn.traffic-label`）
+
+| 配置 | 默认值 | 说明 |
+|---|---|---|
+| `header-name` | `X-Autumn-Traffic-Label` | 携带流量标签的请求 header |
+| `fallback-to-default` | `true` | 目标签无实例时是否回落 default |
+
+## 接入项目
 
 ```xml
 <dependency>
@@ -64,29 +147,58 @@ curl -H "X-Autumn-Traffic-Label: beta" http://127.0.0.1:8080/api/hello
 # 服务提供方
 spring.application.name=demo-service
 server.port=8101
-autumn.discovery.backend=consul            # consul / nacos / multicast
-autumn.discovery.traffic-label=gray        # 本实例流量标签（缺省 default）
+autumn.discovery.backend=nacos
+autumn.discovery.nacos.server-addr=127.0.0.1:8848
+autumn.discovery.traffic-label=gray
+
+# 配置中心
+autumn.config.enabled=true
+autumn.config.backend=nacos
+autumn.config.refresh-enabled=true
 
 # 网关方
-autumn.discovery.register=false            # 网关自身不注册
+autumn.discovery.register=false
 spring.cloud.gateway.server.webflux.routes[0].uri=lb://demo-service
 ```
 
-完整配置表与说明见 **[docs/usage.md](docs/usage.md)**。
+使用配置：
 
-## 已验证
+```java
+@RestController
+@RefreshScope  // 配置变更时自动刷新
+public class MyController {
+    
+    @Value("${my.config.value:default}")
+    private String configValue;
+    
+    @GetMapping("/config")
+    public String getConfig() {
+        return configValue;
+    }
+}
+```
 
-- `mvn clean package`：全模块构建 + 12 个单元测试通过
-- 组播后端端到端冒烟：双标签 provider + 网关，header 切换/回落全部符合预期
-- macOS 多进程共享组播端口场景（bind 组播地址 + 独立发送通道）已修复验证
+## 纯 Java API（无 Spring）
 
-## GraalVM Native Image
+```java
+// 服务发现
+ServiceDiscoveryClient client = new ConsulServiceDiscoveryClient(consulClient);
+List<ServiceInstance> instances = client.getInstances("user-service");
 
-代码层已按 Native 友好编写（无反射路由、构造器注入、`AutoConfiguration.imports` 注册、jackson 树模型解析）。
-编译 native 镜像时请在应用侧配置 `spring-boot-maven-plugin` 的 `process-aot` / `native` goal，并注意：
+// 配置中心
+ConfigCenterClient configClient = new NacosConfigCenterClient(properties);
+String config = configClient.getConfig("application.yaml", "DEFAULT_GROUP", 5000);
 
-- jackson 对 record 的序列化依赖其自带 native metadata（jackson 2.15+ 已内置）
-- 组播后端纯 `java.nio.channels.DatagramChannel`，无反射
+// 监听配置变更
+configClient.addListener("application.yaml", "DEFAULT_GROUP", event -> {
+    System.out.println("Config changed: " + event.newContent());
+});
+
+// 组播发现（零依赖）
+MulticastDiscovery discovery = new MulticastDiscovery(new MulticastConfig(...));
+discovery.start();
+discovery.publish(new InstanceRegistration(...));
+```
 
 ## License
 

@@ -11,6 +11,7 @@
     <description>Lightweight Spring Cloud Gateway discovery extensions: Consul / Nacos (HTTP API) and Multicast, with multi-lane traffic support</description>
 
     <modules>
+        <module>autumn-cloud-extension-common</module>
         <module>autumn-cloud-extension-starter</module>
         <module>autumn-cloud-extension-starter-using</module>
     </modules>
@@ -46,6 +47,11 @@
                 <groupId>org.apache.httpcomponents.client5</groupId>
                 <artifactId>httpclient5</artifactId>
                 <version>${httpclient5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.autumn.cloud</groupId>
+                <artifactId>autumn-cloud-extension-common</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.autumn.cloud</groupId>

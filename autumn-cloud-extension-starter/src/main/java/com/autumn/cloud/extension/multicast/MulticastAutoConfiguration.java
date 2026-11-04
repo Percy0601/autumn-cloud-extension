@@ -8,6 +8,7 @@ import com.autumn.cloud.extension.config.Registrations;
 import com.autumn.cloud.extension.core.multicast.MulticastConfig;
 import com.autumn.cloud.extension.core.multicast.MulticastDiscovery;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -18,6 +19,14 @@ import org.springframework.core.env.Environment;
 
 /**
  * 组播后端自动装配：{@code autumn.discovery.backend=multicast} 时加载。
+ *
+ * <p>组播后端零外部依赖，纯 JDK 实现，适合开发环境/小型局域网。</p>
+ *
+ * <p>条件装配：</p>
+ * <ul>
+ *     <li>{@code @ConditionalOnDiscoveryEnabled} - Spring Cloud Discovery 启用时</li>
+ *     <li>{@code @ConditionalOnProperty(backend=multicast)} - 显式指定 multicast 后端</li>
+ * </ul>
  */
 @AutoConfiguration
 @ConditionalOnDiscoveryEnabled

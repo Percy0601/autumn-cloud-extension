@@ -6,6 +6,7 @@ import com.autumn.cloud.extension.config.AutumnRegistration;
 import com.autumn.cloud.extension.config.ReactiveDiscoveryClientAdapter;
 import com.autumn.cloud.extension.config.Registrations;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -20,10 +21,18 @@ import org.springframework.core.env.Environment;
  *
  * <p>三种后端（consul/nacos/multicast）通过该属性三选一互斥装配，
  * 避免 multicast 示例与真实注册中心同时生效的冲突。</p>
+ *
+ * <p>条件装配：</p>
+ * <ul>
+ *     <li>{@code @ConditionalOnDiscoveryEnabled} - Spring Cloud Discovery 启用时</li>
+ *     <li>{@code @ConditionalOnProperty(backend=consul)} - 显式指定 consul 后端</li>
+ *     <li>{@code @ConditionalOnClass} - classpath 存在 HTTP 客户端依赖</li>
+ * </ul>
  */
 @AutoConfiguration
 @ConditionalOnDiscoveryEnabled
 @ConditionalOnProperty(prefix = "autumn.discovery", name = "backend", havingValue = "consul")
+@ConditionalOnClass(name = "org.apache.hc.client5.http.impl.classic.HttpClients")
 @EnableConfigurationProperties({ConsulProperties.class, AutumnDiscoveryProperties.class})
 public class ConsulAutoConfiguration {
 
