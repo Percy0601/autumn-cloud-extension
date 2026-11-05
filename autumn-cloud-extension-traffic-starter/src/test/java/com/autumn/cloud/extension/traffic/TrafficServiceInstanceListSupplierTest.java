@@ -24,7 +24,7 @@ class TrafficServiceInstanceListSupplierTest {
     void selectByTrafficHeader() {
         var instances = List.of(
                 new MockInstance("svc", null),
-                new MockInstance("svc", "main"),
+                new MockInstance("svc", "default"),
                 new MockInstance("svc", "gray"));
 
         List<MockInstance> selected = TrafficSelector.select(instances, "gray",
@@ -34,7 +34,7 @@ class TrafficServiceInstanceListSupplierTest {
     }
 
     @Test
-    void untaggedInstancesAreMain() {
+    void untaggedInstancesAreDefault() {
         var instances = List.of(
                 new MockInstance("svc", null),
                 new MockInstance("svc", "gray"));
@@ -46,21 +46,21 @@ class TrafficServiceInstanceListSupplierTest {
     }
 
     @Test
-    void fallbackToMainWhenTargetMissing() {
+    void fallbackToDefaultWhenTargetMissing() {
         var instances = List.of(
-                new MockInstance("svc", "main"),
+                new MockInstance("svc", "default"),
                 new MockInstance("svc", "gray"));
 
         List<MockInstance> selected = TrafficSelector.select(instances, "beta",
                 MockInstance::metadataTraffic, true);
         assertEquals(1, selected.size());
-        assertEquals("main", selected.get(0).traffic());
+        assertEquals("default", selected.get(0).traffic());
     }
 
     @Test
     void noFallbackReturnsEmpty() {
         var instances = List.of(
-                new MockInstance("svc", "main"),
+                new MockInstance("svc", "default"),
                 new MockInstance("svc", "gray"));
 
         List<MockInstance> selected = TrafficSelector.select(instances, "beta",

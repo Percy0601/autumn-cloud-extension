@@ -27,7 +27,7 @@ import java.util.function.Consumer;
  */
 public class ConsulConfigCenterClient implements ConfigCenterClient {
 
-    private static final long DEFAULT_WAIT_MS = 300_000L;
+    private static final long DEFAULT_WAIT_MS = 30_000L;
 
     private final ConsulConfigSettings settings;
     private final JsonHttp http;
@@ -139,7 +139,8 @@ public class ConsulConfigCenterClient implements ConfigCenterClient {
                 String response = http.get(url, headers());
                 long newIndex = response == null ? 0 : response.hashCode();
                 if (newIndex != waitIndex) {
-                    watcher.notifyListener(response);
+                    // blocking query 返回的是 KV 元数据 JSON，监听器需要的是配置原文
+                    watcher.notifyListener(getConfig(watcher.dataId, watcher.group, 5000));
                     waitIndex = newIndex;
                     watcher.setWaitIndex(waitIndex);
                 }

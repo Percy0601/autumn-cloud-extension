@@ -13,7 +13,7 @@ import org.springframework.core.env.Environment;
 
 @AutoConfiguration
 @ConditionalOnDiscoveryEnabled
-@ConditionalOnProperty(prefix = "autumn.discovery", name = "backend", havingValue = "multicast")
+@ConditionalOnProperty(prefix = "autumn.discovery", name = "backend", havingValue = "multicast", matchIfMissing = true)
 @EnableConfigurationProperties({MulticastDiscoveryProperties.class, AutumnDiscoveryProperties.class})
 public class MulticastAutoConfiguration {
 

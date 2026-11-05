@@ -13,7 +13,7 @@ import org.springframework.core.env.Environment;
 
 @AutoConfiguration
 @ConditionalOnDiscoveryEnabled
-@ConditionalOnProperty(prefix = "autumn.discovery", name = "backend", havingValue = "nacos")
+@ConditionalOnProperty(prefix = "autumn.discovery", name = "backend", havingValue = "nacos", matchIfMissing = true)
 @EnableConfigurationProperties({NacosProperties.class, AutumnDiscoveryProperties.class})
 public class NacosAutoConfiguration {
 

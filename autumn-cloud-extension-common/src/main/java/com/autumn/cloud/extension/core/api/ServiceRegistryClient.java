@@ -6,14 +6,9 @@ package com.autumn.cloud.extension.core.api;
  * <p>该接口定义了服务注册的核心能力，各后端（Consul/Nacos/Multicast）
  * 需要实现该接口以提供统一的服务注册能力。</p>
  *
- * <p>使用示例：</p>
- * <pre>{@code
- * ServiceRegistryClient client = new ConsulServiceRegistryClient(consulClient);
- * client.register(registration);
- * // ... 服务运行 ...
- * client.deregister(registration.getInstanceId());
- * client.close();
- * }</pre>
+ * <p>实现说明：Spring 侧的自动注册（{@code AutumnAutoServiceRegistration}）由各
+ * {@code discovery-*} Starter 提供；纯 Java 场景直接使用 common 模块中的
+ * {@code ConsulClient} / {@code NacosClient} / {@code MulticastDiscovery}。</p>
  *
  * <p>设计原则：</p>
  * <ul>

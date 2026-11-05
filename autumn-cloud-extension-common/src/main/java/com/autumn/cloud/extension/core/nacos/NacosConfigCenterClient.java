@@ -5,6 +5,9 @@ import com.autumn.cloud.extension.core.http.HttpCallException;
 import com.autumn.cloud.extension.core.http.JsonHttp;
 import com.autumn.cloud.extension.core.http.QueryStrings;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -109,6 +112,12 @@ public class NacosConfigCenterClient implements ConfigCenterClient {
             return;
         }
         NacosWatcher watcher = new NacosWatcher(dataId, group, listener);
+        try {
+            // 以当前内容为基线，避免监听器注册完成就触发一次"假变更"
+            watcher.setLastMd5(md5(getConfig(dataId, group, 5000)));
+        } catch (Exception e) {
+            // 服务端暂不可达时保持空基线，长轮询会自行重试
+        }
         watchers.put(key, watcher);
         scheduler.schedule(() -> watchLoop(watcher), 0, TimeUnit.MILLISECONDS);
     }
@@ -154,7 +163,9 @@ public class NacosConfigCenterClient implements ConfigCenterClient {
                 Map<String, String> params = new LinkedHashMap<>();
                 params.put("Listening-Configs", buildListeningConfigs(watcher.dataId, watcher.group, lastMd5));
                 String url = configUrl() + "/listener?" + QueryStrings.encode(commonParams());
-                String body = http.post(url, params);
+                // Nacos 长轮询要求 Listening-Configs 走 form body（此前误当作 header 发送）
+                String body = http.post(url, params,
+                        Map.of("Content-Type", "application/x-www-form-urlencoded"));
                 if (body != null && body.contains(watcher.dataId)) {
                     String newContent = getConfig(watcher.dataId, watcher.group, 5000);
                     String newMd5 = md5(newContent);
@@ -198,11 +209,23 @@ public class NacosConfigCenterClient implements ConfigCenterClient {
         return "http://" + settings.serverAddr() + "/nacos/v1/cs/configs";
     }
 
+    /** Nacos 长轮询要求真实的 32 位 MD5，不能拿 String.hashCode 冒充。 */
     private static String md5(String content) {
         if (content == null) {
             return "";
         }
-        return String.valueOf(content.hashCode());
+        try {
+            byte[] digest = MessageDigest.getInstance("MD5")
+                    .digest(content.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder(digest.length * 2);
+            for (byte b : digest) {
+                hex.append(Character.forDigit((b >> 4) & 0xF, 16));
+                hex.append(Character.forDigit(b & 0xF, 16));
+            }
+            return hex.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("JDK 缺少 MD5 支持", e);
+        }
     }
 
     private static class NacosWatcher {

@@ -14,8 +14,8 @@ public final class Traffic {
     /** 网关侧传递流量标识的默认 HTTP header。 */
     public static final String DEFAULT_HEADER = "X-Traffic";
 
-    /** 缺省流量：未打标的实例与未指定流量的请求都归属 main 主干流量。 */
-    public static final String DEFAULT = "main";
+    /** 缺省流量：未打标的实例与未指定流量的请求都归属 default 主干流量。 */
+    public static final String DEFAULT = "default";
 
     private Traffic() {
     }

@@ -8,9 +8,9 @@ import java.util.function.Function;
  *
  * <p>规则：</p>
  * <ul>
- *     <li>实例未打标（metadata 无 traffic 或空白）视为 {@code main} 主干流量；</li>
- *     <li>请求未指定流量视为 {@code main} 主干流量；</li>
- *     <li>命中流量无实例且允许回落时：main 主干实例 → 全部实例，逐级兜底；</li>
+ *     <li>实例未打标（metadata 无 traffic 或空白）视为 {@code default} 主干流量；</li>
+ *     <li>请求未指定流量视为 {@code default} 主干流量；</li>
+ *     <li>命中流量无实例且允许回落时：default 主干实例 → 全部实例，逐级兜底；</li>
  *     <li>不允许回落时，无匹配即返回空列表（快速失败）。</li>
  * </ul>
  */
@@ -27,9 +27,9 @@ public final class TrafficSelector {
      * 按请求流量筛选实例。
      *
      * @param candidates     候选实例
-     * @param requested      请求流量，null/空白视为 main
+     * @param requested      请求流量，null/空白视为 default
      * @param extractor      从实例中提取流量的函数
-     * @param fallbackToMain 目标流量无实例时是否回落到 main 主干
+     * @param fallbackToMain 目标流量无实例时是否回落到 default 主干（字段名/配置项保持兼容）
      * @return 匹配的实例列表
      */
     public static <T> List<T> select(List<T> candidates, String requested,
@@ -43,7 +43,7 @@ public final class TrafficSelector {
             return direct;
         }
         if (request.equals(Traffic.DEFAULT)) {
-            // 请求 main 主干但无打标实例：允许回落则放行全部
+            // 请求 default 主干但无打标实例：允许回落则放行全部
             return fallbackToMain ? List.copyOf(candidates) : List.of();
         }
         if (!fallbackToMain) {

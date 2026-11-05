@@ -11,7 +11,7 @@ import java.util.function.Consumer;
  *
  * <p>使用示例：</p>
  * <pre>{@code
- * ConfigCenterClient client = new NacosConfigCenterClient(properties);
+ * ConfigCenterClient client = new NacosConfigCenterClient(NacosConfigSettings.defaults());
  * 
  * // 获取配置
  * String config = client.getConfig("application.yaml", "DEFAULT_GROUP", 5000);

@@ -16,17 +16,17 @@ class TrafficSelectorTest {
     private static final Function<Inst, String> EXTRACTOR = Inst::traffic;
 
     private final List<Inst> candidates = List.of(
-            new Inst(null),          // 未打标 → main
-            new Inst("main"),
+            new Inst(null),          // 未打标 → default
+            new Inst("default"),
             new Inst("gray"),
             new Inst("gray"),
             new Inst("beta"));
 
     @Test
-    void mainRequestSelectsOnlyMainInstances() {
+    void defaultRequestSelectsOnlyDefaultInstances() {
         List<Inst> selected = TrafficSelector.select(candidates, null, EXTRACTOR, false);
         assertEquals(2, selected.size());
-        assertTrue(selected.stream().allMatch(i -> "main".equals(TrafficSelector.normalize(i.traffic()))));
+        assertTrue(selected.stream().allMatch(i -> Traffic.DEFAULT.equals(TrafficSelector.normalize(i.traffic()))));
     }
 
     @Test
@@ -37,36 +37,45 @@ class TrafficSelectorTest {
     }
 
     @Test
-    void missingTrafficFallsBackToMain() {
+    void missingTrafficFallsBackToDefault() {
         List<Inst> selected = TrafficSelector.select(
-                List.of(new Inst("gray"), new Inst("main")), "beta", EXTRACTOR, true);
+                List.of(new Inst("gray"), new Inst("default")), "beta", EXTRACTOR, true);
         assertEquals(1, selected.size());
-        assertEquals("main", selected.get(0).traffic());
+        assertEquals(Traffic.DEFAULT, selected.get(0).traffic());
     }
 
     @Test
     void missingTrafficWithoutFallbackReturnsEmpty() {
         List<Inst> selected = TrafficSelector.select(
-                List.of(new Inst("gray"), new Inst("main")), "beta", EXTRACTOR, false);
+                List.of(new Inst("gray"), new Inst("default")), "beta", EXTRACTOR, false);
         assertTrue(selected.isEmpty());
     }
 
     @Test
-    void fallsBackToAllWhenMainAlsoEmpty() {
+    void fallsBackToAllWhenDefaultAlsoEmpty() {
         List<Inst> selected = TrafficSelector.select(
                 List.of(new Inst("gray"), new Inst("beta")), "beta-x", EXTRACTOR, true);
         assertEquals(2, selected.size());
     }
 
     @Test
-    void mainRequestWithoutMainInstancesFallsBackToAll() {
+    void defaultRequestWithoutDefaultInstancesFallsBackToAll() {
         List<Inst> selected = TrafficSelector.select(
                 List.of(new Inst("gray")), null, EXTRACTOR, true);
         assertEquals(1, selected.size());
     }
 
     @Test
-    void blankTrafficTreatedAsMain() {
+    void exampleProviderLabelsRouteCorrectly() {
+        // 回归：示例 provider 配 default / gray，无 header 时不应放行到 gray 实例
+        var instances = List.of(new Inst("default"), new Inst("gray"));
+        assertEquals("default", TrafficSelector.select(instances, null, EXTRACTOR, true).get(0).traffic());
+        assertEquals("gray", TrafficSelector.select(instances, "gray", EXTRACTOR, true).get(0).traffic());
+        assertEquals("default", TrafficSelector.select(instances, "beta", EXTRACTOR, true).get(0).traffic());
+    }
+
+    @Test
+    void blankTrafficTreatedAsDefault() {
         assertEquals(TrafficSelector.normalize("  "), Traffic.DEFAULT);
         assertEquals(TrafficSelector.normalize(" gray "), "gray");
     }

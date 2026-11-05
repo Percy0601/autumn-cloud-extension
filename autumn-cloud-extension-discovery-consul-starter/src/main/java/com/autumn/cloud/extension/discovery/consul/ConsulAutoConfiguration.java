@@ -13,7 +13,7 @@ import org.springframework.core.env.Environment;
 
 @AutoConfiguration
 @ConditionalOnDiscoveryEnabled
-@ConditionalOnProperty(prefix = "autumn.discovery", name = "backend", havingValue = "consul")
+@ConditionalOnProperty(prefix = "autumn.discovery", name = "backend", havingValue = "consul", matchIfMissing = true)
 @EnableConfigurationProperties({ConsulProperties.class, AutumnDiscoveryProperties.class})
 public class ConsulAutoConfiguration {
 
