@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>xyz.we-win.autumn</groupId>
+        <groupId>xyz.we-win</groupId>
         <artifactId>autumn-cloud-extension</artifactId>
         <version>1.0.0-RELEASE</version>
     </parent>
@@ -20,32 +20,32 @@
     <dependencies>
         <!-- Consul 配置中心 -->
         <dependency>
-            <groupId>xyz.we-win.autumn</groupId>
+            <groupId>xyz.we-win</groupId>
             <artifactId>autumn-cloud-extension-config-consul-starter</artifactId>
         </dependency>
         <!-- Nacos 配置中心 -->
         <dependency>
-            <groupId>xyz.we-win.autumn</groupId>
+            <groupId>xyz.we-win</groupId>
             <artifactId>autumn-cloud-extension-config-nacos-starter</artifactId>
         </dependency>
         <!-- Consul 服务发现 -->
         <dependency>
-            <groupId>xyz.we-win.autumn</groupId>
+            <groupId>xyz.we-win</groupId>
             <artifactId>autumn-cloud-extension-discovery-consul-starter</artifactId>
         </dependency>
         <!-- Nacos 服务发现 -->
         <dependency>
-            <groupId>xyz.we-win.autumn</groupId>
+            <groupId>xyz.we-win</groupId>
             <artifactId>autumn-cloud-extension-discovery-nacos-starter</artifactId>
         </dependency>
         <!-- 组播服务发现 -->
         <dependency>
-            <groupId>xyz.we-win.autumn</groupId>
+            <groupId>xyz.we-win</groupId>
             <artifactId>autumn-cloud-extension-discovery-multicast-starter</artifactId>
         </dependency>
         <!-- 泳道路由 -->
         <dependency>
-            <groupId>xyz.we-win.autumn</groupId>
+            <groupId>xyz.we-win</groupId>
             <artifactId>autumn-cloud-extension-traffic-starter</artifactId>
         </dependency>
         <!-- Provider：普通 WebFlux 服务，注册自身并提供 /hello -->
