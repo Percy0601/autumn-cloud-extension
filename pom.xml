@@ -35,6 +35,10 @@
     </scm>
 
     <distributionManagement>
+        <repository>
+            <id>central</id>
+            <url>https://central.sonatype.com/repository/maven-releases/</url>
+        </repository>
         <snapshotRepository>
             <id>central</id>
             <url>https://central.sonatype.com/repository/maven-snapshots/</url>
@@ -49,7 +53,7 @@
         <module>autumn-cloud-extension-discovery-nacos-starter</module>
         <module>autumn-cloud-extension-discovery-multicast-starter</module>
         <module>autumn-cloud-extension-traffic-starter</module>
-        <module>autumn-cloud-extension-starter-using</module>
+        <!-- autumn-cloud-extension-starter-using 是示例模块，不发布 -->
     </modules>
 
     <properties>
@@ -181,7 +185,7 @@
             <plugin>
                 <groupId>org.sonatype.central</groupId>
                 <artifactId>central-publishing-maven-plugin</artifactId>
-                <version>0.4.0</version>
+                <version>0.12.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <publishingServerId>central</publishingServerId>
