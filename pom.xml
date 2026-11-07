@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>xyz.we-win</groupId>
+    <groupId>xyz.we-win.autumn</groupId>
     <artifactId>autumn-cloud-extension</artifactId>
     <version>1.0.0-RELEASE</version>
     <packaging>pom</packaging>
@@ -79,37 +79,37 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>xyz.we-win</groupId>
+                <groupId>xyz.we-win.autumn</groupId>
                 <artifactId>autumn-cloud-extension-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>xyz.we-win</groupId>
+                <groupId>xyz.we-win.autumn</groupId>
                 <artifactId>autumn-cloud-extension-config-consul-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>xyz.we-win</groupId>
+                <groupId>xyz.we-win.autumn</groupId>
                 <artifactId>autumn-cloud-extension-config-nacos-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>xyz.we-win</groupId>
+                <groupId>xyz.we-win.autumn</groupId>
                 <artifactId>autumn-cloud-extension-discovery-consul-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>xyz.we-win</groupId>
+                <groupId>xyz.we-win.autumn</groupId>
                 <artifactId>autumn-cloud-extension-discovery-nacos-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>xyz.we-win</groupId>
+                <groupId>xyz.we-win.autumn</groupId>
                 <artifactId>autumn-cloud-extension-discovery-multicast-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>xyz.we-win</groupId>
+                <groupId>xyz.we-win.autumn</groupId>
                 <artifactId>autumn-cloud-extension-traffic-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
