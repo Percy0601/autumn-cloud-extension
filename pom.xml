@@ -3,12 +3,43 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>xyz.wewin.autumn</groupId>
+    <groupId>xyz.we-win.autumn</groupId>
     <artifactId>autumn-cloud-extension</artifactId>
     <version>1.0.0-RELEASE</version>
     <packaging>pom</packaging>
     <name>autumn-cloud-extension</name>
     <description>Lightweight Spring Cloud Gateway discovery extensions: Consul / Nacos (HTTP API) and Multicast, with multi-lane traffic support</description>
+    <url>https://github.com/Percy0601/autumn-cloud-extension</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>percy0601</id>
+            <name>Percy Zhao</name>
+            <email>745356640@qq.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/Percy0601/autumn-cloud-extension</url>
+        <connection>scm:git:git://github.com/Percy0601/autumn-cloud-extension.git</connection>
+        <developerConnection>scm:git:ssh://github.com/Percy0601/autumn-cloud-extension.git</developerConnection>
+        <tag>v1.0.0-RELEASE</tag>
+    </scm>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>central</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <modules>
         <module>autumn-cloud-extension-common</module>
@@ -48,37 +79,37 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>xyz.wewin.autumn</groupId>
+                <groupId>xyz.we-win.autumn</groupId>
                 <artifactId>autumn-cloud-extension-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>xyz.wewin.autumn</groupId>
+                <groupId>xyz.we-win.autumn</groupId>
                 <artifactId>autumn-cloud-extension-config-consul-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>xyz.wewin.autumn</groupId>
+                <groupId>xyz.we-win.autumn</groupId>
                 <artifactId>autumn-cloud-extension-config-nacos-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>xyz.wewin.autumn</groupId>
+                <groupId>xyz.we-win.autumn</groupId>
                 <artifactId>autumn-cloud-extension-discovery-consul-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>xyz.wewin.autumn</groupId>
+                <groupId>xyz.we-win.autumn</groupId>
                 <artifactId>autumn-cloud-extension-discovery-nacos-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>xyz.wewin.autumn</groupId>
+                <groupId>xyz.we-win.autumn</groupId>
                 <artifactId>autumn-cloud-extension-discovery-multicast-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>xyz.wewin.autumn</groupId>
+                <groupId>xyz.we-win.autumn</groupId>
                 <artifactId>autumn-cloud-extension-traffic-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -103,5 +134,60 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.3</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <doclint>none</doclint>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.2.2</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.4.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <tokenAuth>true</tokenAuth>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>

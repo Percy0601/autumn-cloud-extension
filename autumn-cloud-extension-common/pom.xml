@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>xyz.wewin.autumn</groupId>
+        <groupId>xyz.we-win.autumn</groupId>
         <artifactId>autumn-cloud-extension</artifactId>
         <version>1.0.0-RELEASE</version>
     </parent>
