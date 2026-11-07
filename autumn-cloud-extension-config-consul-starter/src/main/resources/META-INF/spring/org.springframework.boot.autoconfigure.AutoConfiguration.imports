@@ -1,2 +1,2 @@
-com.autumn.cloud.extension.config.consul.ConsulConfigAutoConfiguration
-com.autumn.cloud.extension.config.consul.ConsulConfigBackendGuard
+xyz.wewin.autumn.cloud.extension.config.consul.ConsulConfigAutoConfiguration
+xyz.wewin.autumn.cloud.extension.config.consul.ConsulConfigBackendGuard

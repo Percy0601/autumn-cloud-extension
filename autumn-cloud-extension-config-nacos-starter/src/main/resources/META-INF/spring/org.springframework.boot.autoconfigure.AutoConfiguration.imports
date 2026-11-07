@@ -1,2 +1,2 @@
-com.autumn.cloud.extension.config.nacos.NacosConfigAutoConfiguration
-com.autumn.cloud.extension.config.nacos.NacosConfigBackendGuard
+xyz.wewin.autumn.cloud.extension.config.nacos.NacosConfigAutoConfiguration
+xyz.wewin.autumn.cloud.extension.config.nacos.NacosConfigBackendGuard

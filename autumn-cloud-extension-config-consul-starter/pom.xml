@@ -4,9 +4,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.autumn.cloud</groupId>
+        <groupId>xyz.wewin.autumn</groupId>
         <artifactId>autumn-cloud-extension</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0-RELEASE</version>
     </parent>
 
     <artifactId>autumn-cloud-extension-config-consul-starter</artifactId>
@@ -15,7 +15,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.autumn.cloud</groupId>
+            <groupId>xyz.wewin.autumn</groupId>
             <artifactId>autumn-cloud-extension-common</artifactId>
         </dependency>
         <dependency>

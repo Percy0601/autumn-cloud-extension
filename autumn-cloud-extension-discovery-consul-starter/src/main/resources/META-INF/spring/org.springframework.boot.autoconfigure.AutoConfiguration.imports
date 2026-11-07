@@ -1,2 +1,2 @@
-com.autumn.cloud.extension.discovery.consul.ConsulAutoConfiguration
-com.autumn.cloud.extension.discovery.consul.ConsulDiscoveryBackendGuard
+xyz.wewin.autumn.cloud.extension.discovery.consul.ConsulAutoConfiguration
+xyz.wewin.autumn.cloud.extension.discovery.consul.ConsulDiscoveryBackendGuard

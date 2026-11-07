@@ -1,2 +1,2 @@
-com.autumn.cloud.extension.discovery.multicast.MulticastAutoConfiguration
-com.autumn.cloud.extension.discovery.multicast.MulticastDiscoveryBackendGuard
+xyz.wewin.autumn.cloud.extension.discovery.multicast.MulticastAutoConfiguration
+xyz.wewin.autumn.cloud.extension.discovery.multicast.MulticastDiscoveryBackendGuard

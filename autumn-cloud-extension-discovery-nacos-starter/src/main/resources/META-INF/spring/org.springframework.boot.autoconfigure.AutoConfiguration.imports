@@ -1,2 +1,2 @@
-com.autumn.cloud.extension.discovery.nacos.NacosAutoConfiguration
-com.autumn.cloud.extension.discovery.nacos.NacosDiscoveryBackendGuard
+xyz.wewin.autumn.cloud.extension.discovery.nacos.NacosAutoConfiguration
+xyz.wewin.autumn.cloud.extension.discovery.nacos.NacosDiscoveryBackendGuard
