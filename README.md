@@ -68,13 +68,13 @@ mvn clean install -DskipTests
 cd autumn-cloud-extension-starter-using
 
 # 终端1：default 标签 provider（8101）
-mvn spring-boot:run -Dspring-boot.run.main-class=com.autumn.cloud.example.provider.ProviderApplication -Dspring-boot.run.profiles=provider
+mvn spring-boot:run -Dspring-boot.run.main-class=xyz.wewin.autumn.cloud.example.provider.ProviderApplication -Dspring-boot.run.profiles=provider
 
 # 终端2：gray 标签 provider（8102）
-mvn spring-boot:run -Dspring-boot.run.main-class=com.autumn.cloud.example.provider.ProviderApplication -Dspring-boot.run.profiles=provider-gray
+mvn spring-boot:run -Dspring-boot.run.main-class=xyz.wewin.autumn.cloud.example.provider.ProviderApplication -Dspring-boot.run.profiles=provider-gray
 
 # 终端3：网关（8080）
-mvn spring-boot:run -Dspring-boot.run.main-class=com.autumn.cloud.example.gateway.GatewayApplication -Dspring-boot.run.profiles=gateway
+mvn spring-boot:run -Dspring-boot.run.main-class=xyz.wewin.autumn.cloud.example.gateway.GatewayApplication -Dspring-boot.run.profiles=gateway
 ```
 
 验证泳道路由：
@@ -98,7 +98,7 @@ curl --noproxy '*' -H "X-Traffic: beta" http://127.0.0.1:8080/api/hello
 # 需先启动 Nacos 或 Consul，并在其中创建 dataId = config-demo.properties、group = DEFAULT_GROUP
 # 内容为 .properties，例如：demo.config.value=from-remote
 # 注意用 config-nacos / config-consul，不要用 nacos / consul（后者会连带切换服务发现后端）
-mvn spring-boot:run -Dspring-boot.run.main-class=com.autumn.cloud.example.config.ConfigApplication -Dspring-boot.run.profiles=config,config-nacos
+mvn spring-boot:run -Dspring-boot.run.main-class=xyz.wewin.autumn.cloud.example.config.ConfigApplication -Dspring-boot.run.profiles=config,config-nacos
 
 curl --noproxy '*' http://127.0.0.1:8103/config
 # 在 Nacos 控制台改配置后再次访问，@RefreshScope 会重新绑定 @Value
@@ -160,23 +160,23 @@ curl --noproxy '*' http://127.0.0.1:8103/config
 ```xml
 <!-- 服务发现：三选一 -->
 <dependency>
-    <groupId>com.autumn.cloud</groupId>
+    <groupId>xyz.we-win.autumn</groupId>
     <artifactId>autumn-cloud-extension-discovery-nacos-starter</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0-RELEASE</version>
 </dependency>
 
 <!-- 配置中心：可选，二选一 -->
 <dependency>
-    <groupId>com.autumn.cloud</groupId>
+    <groupId>xyz.we-win.autumn</groupId>
     <artifactId>autumn-cloud-extension-config-nacos-starter</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0-RELEASE</version>
 </dependency>
 
 <!-- 泳道路由：可选，仅网关侧 -->
 <dependency>
-    <groupId>com.autumn.cloud</groupId>
+    <groupId>xyz.we-win.autumn</groupId>
     <artifactId>autumn-cloud-extension-traffic-starter</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0-RELEASE</version>
 </dependency>
 ```
 
@@ -224,14 +224,14 @@ public class MyController {
 `common` 模块可脱离 Spring 单独使用（以下示例可直接编译）：
 
 ```java
-import com.autumn.cloud.extension.core.api.ConfigCenterClient;
-import com.autumn.cloud.extension.core.model.InstanceRegistration;
-import com.autumn.cloud.extension.core.model.InstanceSnapshot;
-import com.autumn.cloud.extension.core.multicast.MulticastConfig;
-import com.autumn.cloud.extension.core.multicast.MulticastDiscovery;
-import com.autumn.cloud.extension.core.nacos.NacosConfigCenterClient;
-import com.autumn.cloud.extension.core.nacos.NacosConfigSettings;
-import com.autumn.cloud.extension.core.traffic.TrafficSelector;
+import xyz.wewin.autumn.cloud.extension.core.api.ConfigCenterClient;
+import xyz.wewin.autumn.cloud.extension.core.model.InstanceRegistration;
+import xyz.wewin.autumn.cloud.extension.core.model.InstanceSnapshot;
+import xyz.wewin.autumn.cloud.extension.core.multicast.MulticastConfig;
+import xyz.wewin.autumn.cloud.extension.core.multicast.MulticastDiscovery;
+import xyz.wewin.autumn.cloud.extension.core.nacos.NacosConfigCenterClient;
+import xyz.wewin.autumn.cloud.extension.core.nacos.NacosConfigSettings;
+import xyz.wewin.autumn.cloud.extension.core.traffic.TrafficSelector;
 
 import java.util.Map;
 

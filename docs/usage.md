@@ -36,23 +36,23 @@
 ```xml
 <!-- 服务发现：三选一，只引需要的那个 -->
 <dependency>
-    <groupId>com.autumn.cloud</groupId>
+    <groupId>xyz.we-win.autumn</groupId>
     <artifactId>autumn-cloud-extension-discovery-multicast-starter</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0-RELEASE</version>
 </dependency>
 
 <!-- 配置中心：可选，二选一 -->
 <dependency>
-    <groupId>com.autumn.cloud</groupId>
+    <groupId>xyz.we-win.autumn</groupId>
     <artifactId>autumn-cloud-extension-config-nacos-starter</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0-RELEASE</version>
 </dependency>
 
 <!-- 泳道路由：可选，网关侧引入（会带入 spring-cloud-loadbalancer） -->
 <dependency>
-    <groupId>com.autumn.cloud</groupId>
+    <groupId>xyz.we-win.autumn</groupId>
     <artifactId>autumn-cloud-extension-traffic-starter</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0-RELEASE</version>
 </dependency>
 ```
 
@@ -207,9 +207,9 @@
 
 ```bash
 # 三个终端分别执行（组播后端，无需任何注册中心）
-mvn spring-boot:run -Dspring-boot.run.main-class=com.autumn.cloud.example.provider.ProviderApplication -Dspring-boot.run.profiles=provider
-mvn spring-boot:run -Dspring-boot.run.main-class=com.autumn.cloud.example.provider.ProviderApplication -Dspring-boot.run.profiles=provider-gray
-mvn spring-boot:run -Dspring-boot.run.main-class=com.autumn.cloud.example.gateway.GatewayApplication -Dspring-boot.run.profiles=gateway
+mvn spring-boot:run -Dspring-boot.run.main-class=xyz.wewin.autumn.cloud.example.provider.ProviderApplication -Dspring-boot.run.profiles=provider
+mvn spring-boot:run -Dspring-boot.run.main-class=xyz.wewin.autumn.cloud.example.provider.ProviderApplication -Dspring-boot.run.profiles=provider-gray
+mvn spring-boot:run -Dspring-boot.run.main-class=xyz.wewin.autumn.cloud.example.gateway.GatewayApplication -Dspring-boot.run.profiles=gateway
 ```
 
 切换 Consul / Nacos：把 profile 换成 `provider,consul` / `provider-gray,consul` / `gateway,consul`（或 `,nacos`），并确保本机运行着对应服务端。
@@ -225,7 +225,7 @@ mvn spring-boot:run -Dspring-boot.run.main-class=com.autumn.cloud.example.gatewa
 ```bash
 # 配置中心示例：注意 profile 是 config,config-nacos，不是 config,nacos
 # config,nacos 会同时激活发现后端的 nacos profile，本机没有 Nacos 时注册会失败
-mvn spring-boot:run -Dspring-boot.run.main-class=com.autumn.cloud.example.config.ConfigApplication -Dspring-boot.run.profiles=config,config-nacos
+mvn spring-boot:run -Dspring-boot.run.main-class=xyz.wewin.autumn.cloud.example.config.ConfigApplication -Dspring-boot.run.profiles=config,config-nacos
 ```
 
 配置中心示例需要先在 Nacos/Consul 中创建 `dataId=config-demo.properties`、`group=DEFAULT_GROUP`，内容为 `.properties`：
@@ -238,11 +238,11 @@ demo.config.timeout=5000
 ## 7. 纯 Java API（common 模块，无 Spring）
 
 ```java
-import com.autumn.cloud.extension.core.model.InstanceRegistration;
-import com.autumn.cloud.extension.core.model.InstanceSnapshot;
-import com.autumn.cloud.extension.core.multicast.MulticastConfig;
-import com.autumn.cloud.extension.core.multicast.MulticastDiscovery;
-import com.autumn.cloud.extension.core.traffic.TrafficSelector;
+import xyz.wewin.autumn.cloud.extension.core.model.InstanceRegistration;
+import xyz.wewin.autumn.cloud.extension.core.model.InstanceSnapshot;
+import xyz.wewin.autumn.cloud.extension.core.multicast.MulticastConfig;
+import xyz.wewin.autumn.cloud.extension.core.multicast.MulticastDiscovery;
+import xyz.wewin.autumn.cloud.extension.core.traffic.TrafficSelector;
 
 import java.util.Map;
 
