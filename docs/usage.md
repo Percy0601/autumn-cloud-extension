@@ -38,21 +38,21 @@
 <dependency>
     <groupId>xyz.we-win.autumn</groupId>
     <artifactId>autumn-cloud-extension-discovery-multicast-starter</artifactId>
-    <version>1.0.0-RELEASE</version>
+    <version>1.1.0-SNAPSHOT</version>
 </dependency>
 
 <!-- 配置中心：可选，二选一 -->
 <dependency>
     <groupId>xyz.we-win.autumn</groupId>
     <artifactId>autumn-cloud-extension-config-nacos-starter</artifactId>
-    <version>1.0.0-RELEASE</version>
+    <version>1.1.0-SNAPSHOT</version>
 </dependency>
 
 <!-- 泳道路由：可选，网关侧引入（会带入 spring-cloud-loadbalancer） -->
 <dependency>
     <groupId>xyz.we-win.autumn</groupId>
     <artifactId>autumn-cloud-extension-traffic-starter</artifactId>
-    <version>1.0.0-RELEASE</version>
+    <version>1.1.0-SNAPSHOT</version>
 </dependency>
 ```
 

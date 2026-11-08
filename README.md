@@ -181,28 +181,28 @@ curl --noproxy '*' http://127.0.0.1:8103/config
 <dependency>
     <groupId>xyz.we-win.autumn</groupId>
     <artifactId>autumn-cloud-extension-discovery-nacos-starter</artifactId>
-    <version>1.0.0-RELEASE</version>
+    <version>1.1.0-SNAPSHOT</version>
 </dependency>
 
 <!-- 配置中心：可选，二选一 -->
 <dependency>
     <groupId>xyz.we-win.autumn</groupId>
     <artifactId>autumn-cloud-extension-config-nacos-starter</artifactId>
-    <version>1.0.0-RELEASE</version>
+    <version>1.1.0-SNAPSHOT</version>
 </dependency>
 
 <!-- 泳道路由：可选，仅网关侧 -->
 <dependency>
     <groupId>xyz.we-win.autumn</groupId>
     <artifactId>autumn-cloud-extension-traffic-starter</artifactId>
-    <version>1.0.0-RELEASE</version>
+    <version>1.1.0-SNAPSHOT</version>
 </dependency>
 
 <!-- 请求头透传：可选，普通库（非 Starter），需自行 @Bean 注册扩展点 -->
 <dependency>
     <groupId>xyz.we-win.autumn</groupId>
     <artifactId>autumn-cloud-extension-propagation</artifactId>
-    <version>1.0.0-RELEASE</version>
+    <version>1.1.0-SNAPSHOT</version>
 </dependency>
 ```
 
