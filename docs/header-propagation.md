@@ -1,4 +1,4 @@
-# 请求头透传（`autumn-cloud-extension-propagation`）
+# 请求头透传（`autumn-cloud-extension-propagation` + `-starter`）
 
 > 目标：让 `X-Traffic`、`X-Tenant-Id`、`X-Request-Id` 这类**业务上下文**在
 > `网关 → 服务 A → 服务 B` 的级联调用中不丢；同时**不碰**链路追踪中间件掌管的那部分 header。
@@ -45,27 +45,48 @@ Spring 的声明式 HTTP 接口（`@HttpExchange` + `HttpServiceProxyFactory`）
 
 ## 4. 接入方式
 
-### 4.1 servlet（Spring MVC 服务，`@HttpExchange` + `RestClient`）
+### 4.1 推荐：引入 starter（零代码改动）
+
+```xml
+<dependency>
+    <groupId>xyz.we-win.autumn</groupId>
+    <artifactId>autumn-cloud-extension-propagation-starter</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+</dependency>
+```
+
+```properties
+autumn.propagation.enabled=true
+# 白名单默认就是 X-Traffic，要带别的再显式加
+#autumn.propagation.include=X-Traffic,X-Tenant-Id
+```
+
+starter 只做"把扩展点挂上去"这件事，业务代码不用改：
+
+| 客户端形态 | 自动挂载的扩展点 |
+|---|---|
+| `@ImportHttpServices` 的 `RestClient` 分组 | `HttpServiceProxyFactory.Builder#httpRequestValuesProcessor` |
+| `@ImportHttpServices` 的 `WebClient` 分组 | `WebClient.Builder#filter`（`ReactiveHeaderPropagationFilter`） |
+| reactive 应用 | `ServerWebExchangeContextFilter`（缺它 Reactor Context 里没有当前 exchange） |
+
+两点需要知道：
+
+- 扩展点是**常驻**的，是否生效由 `autumn.propagation.enabled` 每次调用现读决定。所以配置中心改成 `true` / `false` 立即生效，不需要重启；
+- 自己再定义 `RestClientHttpServiceGroupConfigurer` / `WebClientHttpServiceGroupConfigurer` 不会被顶掉，多个 configurer 按顺序叠加（例如一个设 `baseUrl`，一个挂处理器）。
+
+### 4.2 不走 starter：手工挂（想自己控制时机，或用的是普通 `RestClient` / `WebClient`）
+
+servlet（`@HttpExchange` + `RestClient`）：
 
 ```java
-@Configuration
-@EnableConfigurationProperties(HeaderPropagationProperties.class)
-class HeaderPropagationConfig {
-
-    @Bean
-    HeaderPropagation headerPropagation(HeaderPropagationProperties properties) {
-        // 用 supplier 而不是固定实例，配置刷新后策略自动重建
-        return HeaderPropagation.of(() -> properties);
-    }
-
-    /** Spring 7 的 HTTP 服务分组：把处理器挂到所有分组的代理工厂上 */
-    @Bean
-    HttpServiceGroupConfigurer<RestClient.Builder> propagationConfigurer(HeaderPropagation propagation) {
-        return groups -> groups.forEachGroup((group, clientBuilder, factoryBuilder) ->
-                factoryBuilder.httpRequestValuesProcessor(propagation.processor()));
-    }
+@Bean
+HttpServiceGroupConfigurer<RestClient.Builder> propagationConfigurer(HeaderPropagation propagation) {
+    return groups -> groups.forEachProxyFactory((group, factoryBuilder) ->
+            factoryBuilder.httpRequestValuesProcessor(propagation.processor()));
 }
 ```
+
+普通 `RestClient`（没有声明式接口）不在覆盖范围内，需要自己在 `RestClient.Builder` 上加拦截器，或者直接把入站 header 用 `apply(...)` 手工合并。
 
 手工 `new HttpServiceProxyFactory` 的场景：
 
@@ -76,29 +97,29 @@ HttpServiceProxyFactory factory = HttpServiceProxyFactory
         .build();
 ```
 
-### 4.2 reactive（WebFlux / Gateway 内部调用）
+reactive（WebFlux / Gateway 内部调用）：
 
 ```java
-@Bean
-ExchangeFilterFunction headerPropagationFilter(HeaderPropagation propagation) {
-    return new ReactiveHeaderPropagationFilter(propagation);
-}
-
-// 挂到具体的 WebClient 上
 WebClient client = WebClient.builder()
-        .filter(headerPropagationFilter)
+        .filter(new ReactiveHeaderPropagationFilter(propagation))
         .build();
 ```
 
-WebFlux 下当前请求不在 ThreadLocal 里，过滤器从 Reactor Context 取 `ServerWebExchange`（key 为 `ServerWebExchange.class`）。链路里需要有把 exchange 写入 context 的过滤器（Gateway 自带）；取不到时**静默跳过**，不影响请求。
+WebFlux 下当前请求不在 ThreadLocal 里，过滤器从 Reactor Context 取 `ServerWebExchange`。框架的写法和 key 是这一对：
 
-如果 context key 与框架版本不一致，构造器支持自定义：
+- 写入：`ServerWebExchangeContextFilter`（bean 形式注册，属 `WebFilter`）；
+- 读取：`ServerWebExchangeContextFilter.getExchange(ContextView)`，它用的 key 常量是 `EXCHANGE_CONTEXT_ATTRIBUTE`，**不是** `ServerWebExchange.class`。
+
+所以**不引入 starter 时必须自己注册这个 filter**，否则取不到 exchange，过滤器会静默跳过（不影响请求，但也不透传）。取不到时静默跳过是我们刻意选的降级行为。
+
+如果 key 与框架版本不一致，构造器支持自定义：
 
 ```java
-new ReactiveHeaderPropagationFilter(propagation, ctx -> ctx.hasKey(MyKeys.EXCHANGE) ? (ServerWebExchange) ctx.get(MyKeys.EXCHANGE) : null);
+new ReactiveHeaderPropagationFilter(propagation, ctx -> ctx.getOrEmpty(MyKeys.EXCHANGE)
+        .map(ServerWebExchange.class::cast).orElse(null));
 ```
 
-> 注意：Reactor 的 `ContextView#get()` 在 key 不存在时抛 `NoSuchElementException`（不是返回 `null`），自定义 lookup 里要先 `hasKey`。
+> 注意：Reactor 的 `ContextView#get()` 在 key 不存在时抛 `NoSuchElementException`（不是返回 `null`），自定义 lookup 里用 `getOrEmpty` 或先 `hasKey`。
 
 ### 4.3 手工透传（自研客户端 / 非请求线程）
 
@@ -179,12 +200,13 @@ autumn.propagation.include=uber-trace-id
 | 完全没生效 | `autumn.propagation.enabled` 是否为 `true`（默认关闭）；配置是否真的刷新到 |
 | 只带了部分 header | 是否在 `WHITELIST` 模式下漏配 `include`；是否被 `max-headers` 截断；是否命中传输层 / 追踪硬阻断 |
 | 值不是预期的 | 方法上是否已有 `@RequestHeader` 显式声明（它优先）；底层拦截器是否已写过同名 header |
-| WebFlux 完全不生效 | Reactor Context 里有没有 `ServerWebExchange`；是否只挂了 Processor（servlet 专用）却没用 filter |
+| WebFlux 完全不生效 | Reactor Context 里有没有 exchange；`ServerWebExchangeContextFilter` 是否注册（用 starter 会自动注册）；是否只挂了 Processor（servlet 专用）却没用 filter |
 | 第二跳还是回落主干 | 透传是否挂到了**那个** client 分组；调用是否发生在请求线程；目标实例是否真的打了同泳道标签 |
 
 ## 8. 已知限制
 
 - 只覆盖 `@HttpExchange` / `RestClient` / `WebClient`；Feign、自研 HTTP 客户端需走 `apply(...)`；
+- starter 只自动装配 `@ImportHttpServices` 声明的客户端分组；普通（非声明式）`RestClient` / `WebClient` 需手工挂拦截器或 filter；
 - `@Async` / 线程池 / 定时任务里 `RequestContextHolder` 为空，会静默跳过（需要的话用 `TaskDecorator` 传递）；
 - 仅请求方向，不做响应头回传；
 - 依赖 Spring Framework 7 的 `HttpRequestValues.Builder#configureHeaders`；Framework 6.x 只能用 `addHeader`，且拿不到已有 header 视图。

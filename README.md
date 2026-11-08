@@ -27,12 +27,12 @@
 - 目标标签无实例时回落 `default` 主干；关闭回落则快速失败（503）
 - 支持灰度 / 多环境流量隔离（`default` / `gray` / `beta` …）
 
-### 4. 请求头透传（`propagation`，可选，**不是 Starter**）
+### 4. 请求头透传（`propagation` + `propagation-starter`，可选）
 - 解决 `@HttpExchange` / `RestClient` / `WebClient` 调用**不继承入站 header** 的问题，让 `X-Traffic` 这类上下文在 `网关 → A → B → C` 级联调用中不丢
 - **默认关闭**：`autumn.propagation.enabled=true` 才生效，可配合配置中心热切换，无需重启
 - **白名单优先**：只带显式列出的 header；传输层 header（`Content-Length` / `Host` …）、`Cookie` 类、链路追踪 header（`traceparent` / `b3` / `uber-trace-id` / `sw8` …）默认一律不带
 - **绝不覆盖**：方法上 `@RequestHeader` 显式声明、或中间件已写入的同名 header 保持原值
-- 只提供类，不做自动装配：需要自己 `@Bean` 注册扩展点（见 [docs/header-propagation.md](docs/header-propagation.md)）
+- 拆成两件：`propagation`（纯逻辑库，零自动装配）+ `propagation-starter`（自动把处理器 / 过滤器挂到 `@ImportHttpServices` 客户端上，并注册 `ServerWebExchangeContextFilter`）；不用 starter 也可以手工挂（见 [docs/header-propagation.md](docs/header-propagation.md)）
 
 ### 5. 轻量与 Native Image 友好
 - `common` 模块零 Spring 依赖，仅 `jackson-databind`，可作为纯 Java API 独立使用
@@ -61,6 +61,7 @@ autumn-cloud-extension/
 ├── autumn-cloud-extension-config-nacos-starter        # Nacos 配置中心
 ├── autumn-cloud-extension-traffic-starter             # 泳道路由（仅网关侧需要）
 ├── autumn-cloud-extension-propagation                 # 请求头透传（普通库，无自动装配）
+├── autumn-cloud-extension-propagation-starter         # 请求头透传自动装配（挂 @ImportHttpServices 客户端）
 └── autumn-cloud-extension-starter-using               # 使用示例（为演示多后端切换，引了全部 Starter）
 ```
 
@@ -198,13 +199,15 @@ curl --noproxy '*' http://127.0.0.1:8103/config
     <version>1.1.0-SNAPSHOT</version>
 </dependency>
 
-<!-- 请求头透传：可选，普通库（非 Starter），需自行 @Bean 注册扩展点 -->
+<!-- 请求头透传：可选，starter 自动挂到 @ImportHttpServices 客户端 -->
 <dependency>
     <groupId>xyz.we-win.autumn</groupId>
-    <artifactId>autumn-cloud-extension-propagation</artifactId>
+    <artifactId>autumn-cloud-extension-propagation-starter</artifactId>
     <version>1.1.0-SNAPSHOT</version>
 </dependency>
 ```
+
+> 只想要纯逻辑、自己控制挂载时机时，引 `autumn-cloud-extension-propagation`（不带自动装配）。
 
 ```properties
 # ---- 服务提供方 ----
