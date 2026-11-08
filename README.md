@@ -1,6 +1,6 @@
 # autumn-cloud-extension
 
-轻量级 **Spring Cloud 服务发现与配置管理扩展**：按能力拆分的 6 个 Starter，按需引入即可获得注册发现、配置中心、泳道路由能力。
+轻量级 **Spring Cloud 服务发现与配置管理扩展**：按能力拆分的 6 个 Starter，按需引入即可获得注册发现、配置中心、泳道路由能力；另有 1 个可选的请求头透传库。
 
 > 基线：Spring Boot 4.1.x / Spring Cloud 2025.1.x / Java 17+（编译目标 17，可运行于 17~25）
 
@@ -27,7 +27,14 @@
 - 目标标签无实例时回落 `default` 主干；关闭回落则快速失败（503）
 - 支持灰度 / 多环境流量隔离（`default` / `gray` / `beta` …）
 
-### 4. 轻量与 Native Image 友好
+### 4. 请求头透传（`propagation`，可选，**不是 Starter**）
+- 解决 `@HttpExchange` / `RestClient` / `WebClient` 调用**不继承入站 header** 的问题，让 `X-Traffic` 这类上下文在 `网关 → A → B → C` 级联调用中不丢
+- **默认关闭**：`autumn.propagation.enabled=true` 才生效，可配合配置中心热切换，无需重启
+- **白名单优先**：只带显式列出的 header；传输层 header（`Content-Length` / `Host` …）、`Cookie` 类、链路追踪 header（`traceparent` / `b3` / `uber-trace-id` / `sw8` …）默认一律不带
+- **绝不覆盖**：方法上 `@RequestHeader` 显式声明、或中间件已写入的同名 header 保持原值
+- 只提供类，不做自动装配：需要自己 `@Bean` 注册扩展点（见 [docs/header-propagation.md](docs/header-propagation.md)）
+
+### 5. 轻量与 Native Image 友好
 - `common` 模块零 Spring 依赖，仅 `jackson-databind`，可作为纯 Java API 独立使用
 - 每个 Starter 只引入自己需要的 Spring 构件：`spring-cloud-loadbalancer` 仅 traffic 引入，`spring-cloud-context` 仅 config 引入
 - record 类 + `AutoConfiguration.imports` 注册，无反射路由
@@ -53,6 +60,7 @@ autumn-cloud-extension/
 ├── autumn-cloud-extension-config-consul-starter       # Consul KV 配置中心
 ├── autumn-cloud-extension-config-nacos-starter        # Nacos 配置中心
 ├── autumn-cloud-extension-traffic-starter             # 泳道路由（仅网关侧需要）
+├── autumn-cloud-extension-propagation                 # 请求头透传（普通库，无自动装配）
 └── autumn-cloud-extension-starter-using               # 使用示例（为演示多后端切换，引了全部 Starter）
 ```
 
@@ -141,6 +149,17 @@ curl --noproxy '*' http://127.0.0.1:8103/config
 | `header` | `X-Traffic` | 携带泳道标签的请求 header |
 | `fallback-to-main` | `true` | 目标标签无实例时是否回落到 `default` 主干（键名保持兼容） |
 
+### 请求头透传（前缀 `autumn.propagation`，可选）
+
+| 配置 | 默认值 | 说明 |
+|---|---|---|
+| `enabled` | `false` | 总开关，每次调用读取，配置中心刷新后立即生效 |
+| `mode` | `WHITELIST` | `WHITELIST` 只带 `include` 列出的；`BLACKLIST` 除 `exclude` 外全带 |
+| `include` | `X-Traffic` | 白名单，header 名大小写不敏感 |
+| `exclude` | 空 | 排除项；命中 `include` 的优先放行 |
+| `max-headers` | `32` | 单次最多带多少个 header，`0` 表示不限制，防止 header 越滚越大 |
+| `allow-tracing-headers` | `false` | 是否允许透传追踪 header（仅"下游没有 tracing 中间件"时才需要，见文档） |
+
 ## 启动期诊断
 
 `BackendValidator` 在 Bean 实例化前校验后端选择，避免"配错却什么都不发生"：
@@ -176,6 +195,13 @@ curl --noproxy '*' http://127.0.0.1:8103/config
 <dependency>
     <groupId>xyz.we-win.autumn</groupId>
     <artifactId>autumn-cloud-extension-traffic-starter</artifactId>
+    <version>1.0.0-RELEASE</version>
+</dependency>
+
+<!-- 请求头透传：可选，普通库（非 Starter），需自行 @Bean 注册扩展点 -->
+<dependency>
+    <groupId>xyz.we-win.autumn</groupId>
+    <artifactId>autumn-cloud-extension-propagation</artifactId>
     <version>1.0.0-RELEASE</version>
 </dependency>
 ```
@@ -263,6 +289,7 @@ discovery.close();
 - `setStatus`（主动标记下线）未实现，摘除依赖 TTL / 心跳超时
 - 组播后端适用于开发/局域网，跨网段需调大 TTL 且依赖网络设备放行组播路由
 - 目前单元测试以纯 Java 逻辑为主，尚无完整的 Spring 上下文集成测试与端到端自动化冒烟
+- 请求头透传只覆盖 `@HttpExchange` / `RestClient` / `WebClient`；Feign、自研客户端需手工调用 `HeaderPropagation#apply`
 
 ## License
 

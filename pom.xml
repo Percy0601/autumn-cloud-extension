@@ -53,6 +53,7 @@
         <module>autumn-cloud-extension-discovery-nacos-starter</module>
         <module>autumn-cloud-extension-discovery-multicast-starter</module>
         <module>autumn-cloud-extension-traffic-starter</module>
+        <module>autumn-cloud-extension-propagation</module>
         <!-- autumn-cloud-extension-starter-using 是示例模块，不发布 -->
     </modules>
 
@@ -115,6 +116,11 @@
             <dependency>
                 <groupId>xyz.we-win.autumn</groupId>
                 <artifactId>autumn-cloud-extension-traffic-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.we-win.autumn</groupId>
+                <artifactId>autumn-cloud-extension-propagation</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

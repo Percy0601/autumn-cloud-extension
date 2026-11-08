@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>xyz.we-win.autumn</groupId>
+        <artifactId>autumn-cloud-extension</artifactId>
+        <version>1.0.0-RELEASE</version>
+    </parent>
+
+    <artifactId>autumn-cloud-extension-propagation</artifactId>
+    <name>autumn-cloud-extension-propagation</name>
+    <description>Opt-in HTTP header propagation for @HttpExchange / RestClient / WebClient: whitelist-first, switchable, tracing-safe. Plain library, no auto-configuration.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>xyz.we-win.autumn</groupId>
+            <artifactId>autumn-cloud-extension-common</artifactId>
+        </dependency>
+
+        <!-- HttpRequestValues / HttpHeaders / RequestContextHolder -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+
+        <!-- @ConfigurationProperties 绑定（使用方本身就是 Boot 应用） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- servlet 版处理器；WebFlux 应用不引也无妨 -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- reactive 版过滤器；纯 MVC 应用可不引 -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
