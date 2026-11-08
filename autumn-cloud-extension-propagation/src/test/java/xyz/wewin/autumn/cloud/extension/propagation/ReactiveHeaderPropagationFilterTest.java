@@ -5,6 +5,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.web.filter.reactive.ServerWebExchangeContextFilter;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
@@ -34,6 +35,19 @@ class ReactiveHeaderPropagationFilterTest {
 
         filter.filter(request(), next(captured))
                 .contextWrite(context -> context.put(ServerWebExchange.class, exchange("gray")))
+                .block();
+
+        assertEquals(List.of("gray"), captured.get().headers().get("X-Traffic"));
+    }
+
+    @Test
+    void readsExchangeWrittenByTheOfficialContextFilter() {
+        AtomicReference<ClientRequest> captured = new AtomicReference<>();
+
+        // ServerWebExchangeContextFilter 用一个「带前缀的字符串」做 context key，属于框架约定，必须兼容
+        filter.filter(request(), next(captured))
+                .contextWrite(context -> context.put(
+                        ServerWebExchangeContextFilter.EXCHANGE_CONTEXT_ATTRIBUTE, exchange("gray")))
                 .block();
 
         assertEquals(List.of("gray"), captured.get().headers().get("X-Traffic"));

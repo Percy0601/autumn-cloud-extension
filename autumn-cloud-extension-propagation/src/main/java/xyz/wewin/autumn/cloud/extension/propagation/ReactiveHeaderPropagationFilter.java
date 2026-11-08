@@ -1,6 +1,7 @@
 package xyz.wewin.autumn.cloud.extension.propagation;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.web.filter.reactive.ServerWebExchangeContextFilter;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
@@ -76,11 +77,14 @@ public final class ReactiveHeaderPropagationFilter implements ExchangeFilterFunc
     }
 
     private static ServerWebExchange lookupExchange(ContextView context) {
-        // Reactor Context 的 get() 在 key 不存在时抛 NoSuchElementException，不是返回 null
-        if (!context.hasKey(ServerWebExchange.class)) {
-            return null;
+        // 官方约定：ServerWebExchangeContextFilter 以「类名 String」为 key 写入 context，
+        // 不在 context 里时 getExchange 返回 Optional.empty（不会抛 NoSuchElementException）
+        ServerWebExchange exchange = ServerWebExchangeContextFilter.getExchange(context).orElse(null);
+        if (exchange != null) {
+            return exchange;
         }
-        Object value = context.get(ServerWebExchange.class);
-        return value instanceof ServerWebExchange exchange ? exchange : null;
+        // 兜底：调用方自己 contextWrite(ServerWebExchange.class, exchange) 的场景
+        Object value = context.getOrEmpty(ServerWebExchange.class).orElse(null);
+        return value instanceof ServerWebExchange serverExchange ? serverExchange : null;
     }
 }
