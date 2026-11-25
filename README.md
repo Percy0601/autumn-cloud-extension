@@ -2,7 +2,7 @@
 
 轻量级 **Spring Cloud 服务发现与配置管理扩展**：按能力拆分的 6 个 Starter，按需引入即可获得注册发现、配置中心、泳道路由能力；另有 1 个可选的请求头透传库。
 
-> 基线：Spring Boot 4.1.x / Spring Cloud 2025.1.x / Java 17+（编译目标 17，可运行于 17~25）
+> 基线：Spring Boot 4.2.x / Spring Cloud 2026.0.x（Gateway 5.1.x）/ Java 17+（编译目标 17，可运行于 17~25）
 
 ## 核心能力
 

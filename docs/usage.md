@@ -1,6 +1,6 @@
 # autumn-cloud-extension 使用说明
 
-> 适用版本：Spring Boot 4.1.x / Spring Cloud 2025.1.x / Java 17+
+> 适用版本：Spring Boot 4.2.x / Spring Cloud 2026.0.x（Gateway 5.1.x）/ Java 17+
 > 参考：spring-cloud-consul（注册/发现/自动注册模式）、autumn-gateway（LoadBalancer 扩展模式）
 > 本文对应**拆分后**的 6 Starter 结构；总览见 [README.md](../README.md)
 
@@ -56,7 +56,7 @@
 </dependency>
 ```
 
-网关侧还需要 Spring Cloud Gateway（`spring-cloud-starter-gateway-server-webflux`）；服务侧只需 `spring-boot-starter-web` 或 `webflux`。
+网关侧还需要 Spring Cloud Gateway（`spring-cloud-starter-gateway-server-webflux` 5.1.x，版本由 spring-cloud 2026.0.x BOM 管理，直接引依赖即可，不用写 `<version>`）；服务侧只需 `spring-boot-starter-web` 或 `webflux`。
 使用 `@RefreshScope` 需要 `spring-cloud-context`（两个 config Starter 已传递引入）。
 
 ## 3. 配置项总表
